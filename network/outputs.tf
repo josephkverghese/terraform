@@ -9,3 +9,7 @@ output "sg" {
 output "gtos_vpc" {
   value = aws_vpc.gtosvpc.id
 }
+
+output "user_subnet" {
+  value = aws_subnet.gtos_user_subnet.id
+}
