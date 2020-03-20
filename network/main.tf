@@ -69,7 +69,7 @@ resource "aws_subnet" "gtos_public_subnet" {
 resource "aws_subnet" "gtos_user_subnet" {
   vpc_id = aws_vpc.gtosvpc.id
   cidr_block = var.private_cidr
-  availability_zone = data.aws_availability_zones.available.names[count.index]
+  availability_zone = data.aws_availability_zones.available.names[0]
 
   tags = {
     Name = "gtos_private_subnet"
