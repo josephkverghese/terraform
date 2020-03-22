@@ -96,7 +96,7 @@ resource "aws_security_group" "gtos_public_sg" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = [
-      var.accessip]
+      var.accessip_ssh]
   }
 
   #HTTP

@@ -14,3 +14,5 @@ variable "aws_region" {
 }
 
 variable "private_cidr" {}
+
+variable "accessip_ssh" {}
