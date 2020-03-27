@@ -9,3 +9,7 @@ output "splunk_az" {
 output "splunk_ip" {
   value = aws_instance.splunk.associate_public_ip_address
 }
+
+output "cloudwatch_group" {
+  value = aws_cloudwatch_log_group.log_group.name
+}

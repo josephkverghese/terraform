@@ -1,3 +1,9 @@
+#create a log group for this project
+resource "aws_cloudwatch_log_group" "log_group" {
+  name = var.cloudwatch_loggroup_name
+  retention_in_days = var.cloudwatch_retention
+}
+
 resource "aws_instance" "splunk" {
   ami = var.splunk-ami
   instance_type = var.splunk_instance_type
