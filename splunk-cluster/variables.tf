@@ -7,3 +7,4 @@ variable "splunk_mgmt_port" {}
 variable "gtos_vpc" {}
 variable "accessip" {}
 variable "key_name" {}
+variable "instance_name" {}
