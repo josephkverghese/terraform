@@ -5,9 +5,6 @@ resource "aws_instance" "splunk" {
   vpc_security_group_ids = [
     aws_security_group.splunk_sg.id]
   key_name = var.key_name
-  tags = {
-    Name = "gmtc-sh-1"
-  }
 }
 
 
