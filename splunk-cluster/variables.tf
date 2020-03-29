@@ -12,3 +12,8 @@ variable "cloudwatch_retention" {
   default = 30
 }
 variable "cloudwatch_loggroup_name" {}
+variable "splunk_shc_alb" {}
+variable "alb_listener_port" {}
+variable "alb_listener_protocol" {}
+variable "splunk_sh_target_port" {}
+variable "splunk_shc_vpc" {}

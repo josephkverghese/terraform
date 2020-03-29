@@ -152,3 +152,97 @@ resource "aws_security_group" "splunk_sg" {
       "0.0.0.0/0"]
   }
 }
+
+
+resource "aws_launch_configuration" "splunk_sh" {
+  # Launch Configurations cannot be updated after creation with the AWS API.
+  # In order to update a Launch Configuration, Terraform will destroy the
+  # existing resource and create a replacement.
+  #
+  # We're only setting the name_prefix here,
+  # Terraform will add a random string at the end to keep it unique.
+  name_prefix = "splunk-sh-"
+
+  image_id = var.splunk-ami
+  instance_type = var.splunk_instance_type
+  security_groups = aws_security_group.splunk_sg
+  key_name = var.key_name
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_autoscaling_group" "splunk_shc" {
+  # Force a redeployment when launch configuration changes.
+  # This will reset the desired capacity if it was changed due to
+  # autoscaling events.
+  name = "${aws_launch_configuration.splunk_sh.name}-asg"
+  min_size = 3
+  desired_capacity = 3
+  max_size = 3
+  health_check_type = "EC2"
+  launch_configuration = aws_launch_configuration.splunk_sh.name
+  vpc_zone_identifier = var.subnetid
+
+  # Required to redeploy without an outage.
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+
+# ALB
+resource "aws_alb" "splunk_shc_alb" {
+  name = var.splunk_shc_alb
+  internal = false
+  load_balancer_type = "application"
+  security_groups = [
+    aws_security_group.splunk_sg.id]
+  subnets = [
+    var.subnetid]
+  enable_deletion_protection = true
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+resource "aws_alb_listener" "alb_listener" {
+  load_balancer_arn = aws_alb.splunk_shc_alb.arn
+  port = var.alb_listener_port
+  protocol = var.alb_listener_protocol
+
+  default_action {
+    target_group_arn = aws_alb_target_group.splunk_shs.arn
+    type = "forward"
+  }
+}
+
+
+resource "aws_alb_target_group" "splunk_shs" {
+  name = "shc-target-group"
+  port = var.splunk_sh_target_port
+  protocol = "HTTP"
+  vpc_id = var.splunk_shc_vpc
+  stickiness {
+    type = "lb_cookie"
+    cookie_duration = 1800
+    enabled = true
+  }
+  health_check {
+    healthy_threshold = 3
+    unhealthy_threshold = 10
+    timeout = 5
+    interval = 10
+    path = "/"
+    port = var.splunk_sh_target_port
+  }
+
+}
+
+#Autoscaling Attachment
+resource "aws_autoscaling_attachment" "splunk_shc_target" {
+  alb_target_group_arn = aws_alb_target_group.splunk_shs.arn
+  autoscaling_group_name = aws_autoscaling_group.splunk_shc.id
+}
