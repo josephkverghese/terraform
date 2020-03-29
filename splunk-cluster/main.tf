@@ -77,14 +77,14 @@ EOF
 }
 
 # ec2 instances should be able to access other ec2 instances, cloudwatch, sns topic
-resource "aws_iam_policy" "splunk_ec2_policy" {
-  policy = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
-}
+//resource "aws_iam_policy" "splunk_ec2_policy" {
+//  policy = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+//}
 
 #attach the policy to the iam role
 resource "aws_iam_policy_attachment" "splunk_ec2_attach" {
-  name = ""
-  policy_arn = aws_iam_policy.splunk_ec2_policy.arn
+  name = "splunk_ec2_attach"
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
   roles = [
     aws_iam_role.splunk_ec2_role]
 }
