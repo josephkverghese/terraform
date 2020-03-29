@@ -4,6 +4,97 @@ resource "aws_cloudwatch_log_group" "log_group" {
   retention_in_days = var.cloudwatch_retention
 }
 
+
+//resource "aws_iam_role" "log_group_role" {
+//  name = "log_group_role"
+//  path = "/"
+//  # who can assume this role
+//  assume_role_policy = <<EOF
+//{
+//    "Version": "2012-10-17",
+//    "Statement": [
+//        {
+//            "Action": "sts:AssumeRole",
+//            "Principal": {
+//               "Service": "ec2.amazonaws.com"
+//            },
+//            "Effect": "Allow",
+//            "Sid": ""
+//        }
+//    ]
+//}
+//EOF
+//}
+
+
+#policy that allows access to publish to the above log group
+//
+//data "aws_iam_policy_document" "log_group_policy_doc" {
+//  statement {
+//    sid = "1"
+//
+//    effect = "Allow"
+//    actions = [
+//      "cloudwatch:PutMetricData",
+//      "ec2:DescribeVolumes",
+//      "ec2:DescribeTags",
+//      "logs:PutLogEvents",
+//      "logs:DescribeLogStreams",
+//      "logs:DescribeLogGroups",
+//      "logs:CreateLogStream",
+//      "logs:CreateLogGroup"
+//    ]
+//    resources = [
+//      aws_cloudwatch_log_group.log_group.arn
+//    ]
+//  }
+//}
+
+//resource "aws_iam_policy" "log_group_policy" {
+//  policy = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+//}
+
+
+resource "aws_iam_role" "splunk_ec2_role" {
+  name = "splunk_ec2_role"
+  path = "/"
+  # who can assume this role
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": "sts:AssumeRole",
+            "Principal": {
+               "Service": "ec2.amazonaws.com"
+            },
+            "Effect": "Allow",
+            "Sid": ""
+        }
+    ]
+}
+EOF
+}
+
+# ec2 instances should be able to access other ec2 instances, cloudwatch, sns topic
+resource "aws_iam_policy" "splunk_ec2_policy" {
+  policy = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
+#attach the policy to the iam role
+resource "aws_iam_policy_attachment" "splunk_ec2_attach" {
+  name = ""
+  policy_arn = aws_iam_policy.splunk_ec2_policy.arn
+  roles = [
+    aws_iam_role.splunk_ec2_role]
+}
+
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "iam_instance_profile"
+  role = aws_iam_role.splunk_ec2_role
+}
+
+
 resource "aws_instance" "splunk" {
   ami = var.splunk-ami
   instance_type = var.splunk_instance_type
@@ -11,7 +102,7 @@ resource "aws_instance" "splunk" {
   vpc_security_group_ids = [
     aws_security_group.splunk_sg.id]
   key_name = var.key_name
-  iam_instance_profile = ""
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile
   tags = {
     Name = var.instance_name
   }

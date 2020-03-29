@@ -12,3 +12,5 @@ variable "cloudwatch_retention" {
   default = 30
 }
 variable "cloudwatch_loggroup_name" {}
+variable "iam_instance_profile" {}
+variable "splunk_ec2_role" {}

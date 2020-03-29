@@ -13,3 +13,7 @@ output "splunk_ip" {
 output "cloudwatch_group" {
   value = aws_cloudwatch_log_group.log_group.name
 }
+
+output "splunk_ec2_instance_role"{
+  value = aws_iam_role.splunk_ec2_role.arn
+}
