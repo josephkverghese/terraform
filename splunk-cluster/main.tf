@@ -102,7 +102,7 @@ resource "aws_instance" "splunk" {
   vpc_security_group_ids = [
     aws_security_group.splunk_sg.id]
   key_name = var.key_name
-  iam_instance_profile = aws_iam_instance_profile.ec2_profile
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
   tags = {
     Name = var.instance_name
   }
