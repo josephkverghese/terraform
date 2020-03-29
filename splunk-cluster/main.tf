@@ -86,12 +86,12 @@ resource "aws_iam_policy_attachment" "splunk_ec2_attach" {
   name = "splunk_ec2_attach"
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
   roles = [
-    aws_iam_role.splunk_ec2_role]
+    aws_iam_role.splunk_ec2_role.id]
 }
 
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "iam_instance_profile"
-  role = aws_iam_role.splunk_ec2_role
+  role = aws_iam_role.splunk_ec2_role.id
 }
 
 
