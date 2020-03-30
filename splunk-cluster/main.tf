@@ -112,7 +112,7 @@ resource "aws_instance" "splunk" {
 resource "aws_security_group" "splunk_sg" {
   name = "gtos_public_splunk_sg"
   description = "Used for access to the public instances"
-  vpc_id = var.gtos_vpc
+  vpc_id = var.vpc_id
 
   #SSH
 
@@ -224,7 +224,7 @@ resource "aws_alb_target_group" "splunk_shs" {
   name = "shc-target-group"
   port = var.splunk_sh_target_port
   protocol = "HTTP"
-  vpc_id = var.splunk_shc_vpc
+  vpc_id = var.vpc_id
   stickiness {
     type = "lb_cookie"
     cookie_duration = 1800

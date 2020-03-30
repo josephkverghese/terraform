@@ -4,7 +4,7 @@ variable "splunk-ami" {}
 variable "splunk_instance_type" {}
 variable "splunk_web_port" {}
 variable "splunk_mgmt_port" {}
-variable "gtos_vpc" {}
+variable "vpc_id" {}
 variable "accessip" {}
 variable "key_name" {}
 variable "instance_name" {}
