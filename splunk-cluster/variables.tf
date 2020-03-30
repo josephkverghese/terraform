@@ -16,3 +16,7 @@ variable "splunk_shc_alb" {}
 variable "alb_listener_port" {}
 variable "alb_listener_protocol" {}
 variable "splunk_sh_target_port" {}
+variable "enable_splunk_shc" {
+  description = "If set to true, enable auto scaling"
+  type = bool
+}

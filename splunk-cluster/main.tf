@@ -96,6 +96,7 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 
 
 resource "aws_instance" "splunk" {
+
   ami = var.splunk-ami
   instance_type = var.splunk_instance_type
   subnet_id = var.subnetid
@@ -165,7 +166,7 @@ resource "aws_launch_configuration" "splunk_sh" {
 
   image_id = var.splunk-ami
   instance_type = var.splunk_instance_type
-  security_groups = aws_security_group.splunk_sg
+  security_groups = [aws_security_group.splunk_sg.id]
   key_name = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
   lifecycle {
@@ -201,7 +202,7 @@ resource "aws_alb" "splunk_shc_alb" {
     aws_security_group.splunk_sg.id]
   subnets = [
     var.subnetid]
-  enable_deletion_protection = true
+//  enable_deletion_protection = true
 
   tags = {
     Environment = "production"
