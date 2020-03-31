@@ -1,4 +1,5 @@
-variable "subnetid" {}
+variable "subnetidA" {}
+variable "subnetidB" {}
 variable "securitygroup" {}
 variable "splunk-ami" {}
 variable "splunk_instance_type" {}

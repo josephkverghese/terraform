@@ -99,7 +99,7 @@ resource "aws_instance" "splunk" {
   count = var.enable_splunk_shc ? 0 : 1
   ami = var.splunk-ami
   instance_type = var.splunk_instance_type
-  subnet_id = var.subnetid
+  subnet_id = var.subnetidA
   vpc_security_group_ids = [
     aws_security_group.splunk_sg.id]
   key_name = var.key_name
@@ -184,7 +184,7 @@ resource "aws_autoscaling_group" "splunk_shc" {
   max_size = 3
   health_check_type = "EC2"
   launch_configuration = aws_launch_configuration.splunk_sh.name
-  vpc_zone_identifier = [var.subnetid]
+  vpc_zone_identifier = [var.subnetidA,var.subnetidB]
 
   # Required to redeploy without an outage.
   lifecycle {
@@ -201,7 +201,7 @@ resource "aws_alb" "splunk_shc_alb" {
   security_groups = [
     aws_security_group.splunk_sg.id]
   subnets = [
-    var.subnetid]
+    var.subnetidA,var.subnetidB]
 //  enable_deletion_protection = true
 
   tags = {
