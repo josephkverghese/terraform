@@ -1,13 +1,13 @@
 output "splunk" {
-  value = aws_instance.splunk.id
+  value = aws_instance.splunk.id[count.index]
 }
 
 output "splunk_az" {
-  value = aws_instance.splunk.availability_zone
+  value = aws_instance.splunk.availability_zone[count.index]
 }
 
 output "splunk_ip" {
-  value = aws_instance.splunk.associate_public_ip_address
+  value = aws_instance.splunk.associate_public_ip_address[count.index]
 }
 
 output "cloudwatch_group" {
