@@ -184,7 +184,7 @@ resource "aws_autoscaling_group" "splunk_shc" {
   max_size = 3
   health_check_type = "EC2"
   launch_configuration = aws_launch_configuration.splunk_sh.name
-  vpc_zone_identifier = var.subnetid
+  vpc_zone_identifier = [var.subnetid]
 
   # Required to redeploy without an outage.
   lifecycle {
