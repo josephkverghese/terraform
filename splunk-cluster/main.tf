@@ -96,7 +96,7 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 
 
 resource "aws_instance" "splunk" {
-
+  count = var.enable_splunk_shc ? 0 : 1
   ami = var.splunk-ami
   instance_type = var.splunk_instance_type
   subnet_id = var.subnetid
