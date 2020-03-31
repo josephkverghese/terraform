@@ -17,3 +17,7 @@ output "cloudwatch_group" {
 output "splunk_ec2_instance_role"{
   value = aws_iam_role.splunk_ec2_role.arn
 }
+
+output "splunk_shc_alb" {
+  value = aws_alb.splunk_shc_alb.dns_name
+}
