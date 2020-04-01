@@ -242,7 +242,7 @@ resource "aws_alb" "splunk_shc_alb" {
 
 resource "aws_alb_listener" "alb_listener" {
   load_balancer_arn = aws_alb.splunk_shc_alb.arn
-  port = var.alb_listener_port
+  port = var.splunk_web_port
   protocol = var.alb_listener_protocol
 
   default_action {
@@ -254,7 +254,7 @@ resource "aws_alb_listener" "alb_listener" {
 
 resource "aws_alb_target_group" "splunk_shs" {
   name = "shc-target-group"
-  port = var.splunk_sh_target_port
+  port = var.splunk_web_port
   protocol = "HTTP"
   vpc_id = var.vpc_id
   stickiness {
@@ -268,7 +268,7 @@ resource "aws_alb_target_group" "splunk_shs" {
     timeout = 5
     interval = 10
     path = "/"
-    port = var.splunk_sh_target_port
+    port = var.splunk_web_port
   }
 
 }
