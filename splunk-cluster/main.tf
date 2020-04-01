@@ -100,7 +100,7 @@ resource "aws_instance" "splunk" {
   instance_type = var.splunk_instance_type
   subnet_id = var.subnetAid
   vpc_security_group_ids = [
-    aws_security_group.splunk_sg_single_node.id]
+    aws_security_group.splunk_sg_single_node[0].id]
   key_name = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
   tags = {
