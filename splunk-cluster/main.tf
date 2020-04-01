@@ -203,6 +203,11 @@ resource "aws_launch_configuration" "splunk_sh" {
   lifecycle {
     create_before_destroy = true
   }
+  ebs_block_device {
+    device_name = "/dev/sdf"
+    volume_type = "standard"
+    volume_size = var.splunk_shc_volume_size
+  }
 }
 
 resource "aws_autoscaling_group" "splunk_shc" {

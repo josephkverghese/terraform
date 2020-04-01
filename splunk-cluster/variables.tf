@@ -21,3 +21,5 @@ variable "enable_splunk_shc" {
   description = "If set to true, enable auto scaling"
   type = bool
 }
+
+variable "splunk_shc_volume_size" {}
