@@ -183,6 +183,16 @@ resource "aws_security_group" "splunk_sg_shc" {
     security_groups = [
       aws_security_group.splunk_sg_alb.id]
   }
+
+  #SSH
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = [
+      var.subnetAid]
+  }
+
 }
 
 
