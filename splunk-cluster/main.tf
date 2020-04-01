@@ -94,14 +94,13 @@ resource "aws_iam_instance_profile" "ec2_profile" {
   role = aws_iam_role.splunk_ec2_role.id
 }
 
-
 resource "aws_instance" "splunk" {
   count = var.enable_splunk_shc ? 0 : 1
   ami = var.splunk-ami
   instance_type = var.splunk_instance_type
-  subnet_id = var.subnetidA
+  subnet_id = var.subnetAid
   vpc_security_group_ids = [
-    aws_security_group.splunk_sg.id]
+    aws_security_group.splunk_sg_single_node.id]
   key_name = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
   tags = {
@@ -109,10 +108,10 @@ resource "aws_instance" "splunk" {
   }
 }
 
-
-resource "aws_security_group" "splunk_sg" {
-  name = "gtos_public_splunk_sg"
-  description = "Used for access to the public instances"
+#public single node splunk instance
+resource "aws_security_group" "splunk_sg_single_node" {
+  name = "gtos_public_splunk_sg_single_node"
+  description = "security group to allow access to public single node splunk instance"
   vpc_id = var.vpc_id
 
   #SSH
@@ -120,16 +119,6 @@ resource "aws_security_group" "splunk_sg" {
   ingress {
     from_port = 22
     to_port = 22
-    protocol = "tcp"
-    cidr_blocks = [
-      var.accessip]
-  }
-
-  #HTTP
-
-  ingress {
-    from_port = 80
-    to_port = 80
     protocol = "tcp"
     cidr_blocks = [
       var.accessip]
@@ -154,6 +143,47 @@ resource "aws_security_group" "splunk_sg" {
   }
 }
 
+#public splunk alb
+resource "aws_security_group" "splunk_sg_alb" {
+  name = "gtos_public_splunk_sg_alb"
+  description = "Used for access to public splunk alb"
+  vpc_id = var.vpc_id
+
+  #splunk-web
+
+  ingress {
+    from_port = var.splunk_web_port
+    to_port = var.splunk_web_port
+    protocol = "tcp"
+    cidr_blocks = [
+      var.accessip]
+  }
+
+  egress {
+    from_port = var.splunk_web_port
+    to_port = var.splunk_web_port
+    protocol = "tcp"
+    cidr_blocks = [var.subnetACIDR,var.subnetBCIDR]
+  }
+  }
+
+
+resource "aws_security_group" "splunk_sg_shc" {
+  name = "gtos_public_splunk_sg_shc"
+  description = "Used for access to splunk shc from alb"
+  vpc_id = var.vpc_id
+
+  #splunk-web
+
+  ingress {
+    from_port = var.splunk_web_port
+    to_port = var.splunk_web_port
+    protocol = "tcp"
+    security_groups = [
+      aws_security_group.splunk_sg_alb.id]
+  }
+}
+
 
 resource "aws_launch_configuration" "splunk_sh" {
   # Launch Configurations cannot be updated after creation with the AWS API.
@@ -166,7 +196,7 @@ resource "aws_launch_configuration" "splunk_sh" {
 
   image_id = var.splunk-ami
   instance_type = var.splunk_instance_type
-  security_groups = [aws_security_group.splunk_sg.id]
+  security_groups = [aws_security_group.splunk_sg_shc.id]
   key_name = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
   lifecycle {
@@ -184,7 +214,7 @@ resource "aws_autoscaling_group" "splunk_shc" {
   max_size = 3
   health_check_type = "EC2"
   launch_configuration = aws_launch_configuration.splunk_sh.name
-  vpc_zone_identifier = [var.subnetidA,var.subnetidB]
+  vpc_zone_identifier = [var.subnetAid,var.subnetBid]
 
   # Required to redeploy without an outage.
   lifecycle {
@@ -199,9 +229,9 @@ resource "aws_alb" "splunk_shc_alb" {
   internal = false
   load_balancer_type = "application"
   security_groups = [
-    aws_security_group.splunk_sg.id]
+    aws_security_group.splunk_sg_alb.id]
   subnets = [
-    var.subnetidA,var.subnetidB]
+    var.subnetAid,var.subnetBid]
 //  enable_deletion_protection = true
 
   tags = {
