@@ -190,7 +190,7 @@ resource "aws_security_group" "splunk_sg_shc" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = [
-      var.subnetAid]
+      var.subnetACIDR]
   }
 
 }
