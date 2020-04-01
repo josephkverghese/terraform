@@ -110,6 +110,7 @@ resource "aws_instance" "splunk" {
 
 #public single node splunk instance
 resource "aws_security_group" "splunk_sg_single_node" {
+  count = var.enable_splunk_shc ? 0 : 1
   name = "gtos_public_splunk_sg_single_node"
   description = "security group to allow access to public single node splunk instance"
   vpc_id = var.vpc_id
