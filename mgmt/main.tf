@@ -4,7 +4,7 @@ resource "aws_kms_key" "s3key" {
 }
 
 resource "aws_s3_bucket" "s3_bucket_splunk_license" {
-  bucket = var.s3_bucket_name
+  bucket = var.splunk_license_bucket
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
@@ -14,7 +14,7 @@ resource "aws_s3_bucket" "s3_bucket_splunk_license" {
     }
   }
   tags = {
-    Name = var.s3_bucket_name
+    Name = var.splunk_license_bucket
   }
 }
 
