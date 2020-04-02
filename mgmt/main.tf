@@ -12,14 +12,18 @@ resource "aws_s3_bucket" "s3_bucket" {
         sse_algorithm = "aws:kms"
       }
     }
-    tags = {
-      Name = var.s3_bucket_name
-    }
+  }
+  tags = {
+    Name = var.s3_bucket_name
   }
 }
 
+
 resource "aws_s3_bucket" "s3_bucket_splunk_license" {
   bucket = var.splunk_license_s3_bucket_name
+  tags = {
+    Name = var.s3_bucket_name
+  }
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
@@ -27,8 +31,5 @@ resource "aws_s3_bucket" "s3_bucket_splunk_license" {
         sse_algorithm = "aws:kms"
       }
     }
-  }
-  tags = {
-    Name = var.s3_bucket_name
   }
 }
