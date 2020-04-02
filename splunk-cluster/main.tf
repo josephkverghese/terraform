@@ -218,6 +218,11 @@ resource "aws_launch_configuration" "splunk_sh" {
     volume_type = "standard"
     volume_size = var.splunk_shc_volume_size
   }
+  ebs_block_device {
+    device_name = "/dev/xvda"
+    volume_type = "standard"
+    volume_size = var.splunk_shc_root_volume_size
+  }
 }
 
 resource "aws_autoscaling_group" "splunk_shc" {
