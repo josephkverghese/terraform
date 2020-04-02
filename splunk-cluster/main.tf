@@ -218,8 +218,7 @@ resource "aws_launch_configuration" "splunk_sh" {
     volume_type = "standard"
     volume_size = var.splunk_shc_volume_size
   }
-  ebs_block_device {
-    device_name = "/dev/sda1"
+  root_block_device {
     volume_type = "standard"
     volume_size = var.splunk_shc_root_volume_size
   }
