@@ -24,3 +24,6 @@ variable "enable_splunk_shc" {
 
 variable "splunk_shc_volume_size" {}
 variable "splunk_shc_root_volume_size" {}
+variable "project_name" {}
+variable "license_server_hostname" {}
+variable "splunkadminpass" {}

@@ -135,12 +135,34 @@ resource "aws_security_group" "splunk_sg_single_node" {
       var.accessip]
   }
 
-  egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = [
-      "0.0.0.0/0"]
+}
+
+data "template_file" "init" {
+  template = "${file("deployer_config")}"
+
+  vars = {
+    license_master_hostname = var.license_server_hostname
+    splunk_mgmt_port = var.splunk_mgmt_port
+    splunkadminpass = var.splunkadminpass
+  }
+}
+
+#splunk deployer
+# start with base splunk ami
+# add sh clustering stanza
+# add as a slave to splunk license master
+resource "aws_instance" "splunk_deployer" {
+  count = var.enable_splunk_shc ? 1 : 0
+  ami = var.splunk-ami
+  instance_type = var.splunk_instance_type
+  subnet_id = var.subnetAid
+  vpc_security_group_ids = [
+    aws_security_group.splunk_sg_shc.id]
+  key_name = var.key_name
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
+  user_data = data.template_file.init.rendered
+  tags = {
+    Name = "${var.project_name}-Deployer"
   }
 }
 
@@ -164,9 +186,11 @@ resource "aws_security_group" "splunk_sg_alb" {
     from_port = var.splunk_web_port
     to_port = var.splunk_web_port
     protocol = "tcp"
-    cidr_blocks = [var.subnetACIDR,var.subnetBCIDR]
+    cidr_blocks = [
+      var.subnetACIDR,
+      var.subnetBCIDR]
   }
-  }
+}
 
 
 resource "aws_security_group" "splunk_sg_shc" {
@@ -207,7 +231,8 @@ resource "aws_launch_configuration" "splunk_sh" {
 
   image_id = var.splunk-ami
   instance_type = var.splunk_instance_type
-  security_groups = [aws_security_group.splunk_sg_shc.id]
+  security_groups = [
+    aws_security_group.splunk_sg_shc.id]
   key_name = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
   lifecycle {
@@ -234,7 +259,9 @@ resource "aws_autoscaling_group" "splunk_shc" {
   max_size = 3
   health_check_type = "EC2"
   launch_configuration = aws_launch_configuration.splunk_sh.name
-  vpc_zone_identifier = [var.subnetAid,var.subnetBid]
+  vpc_zone_identifier = [
+    var.subnetAid,
+    var.subnetBid]
 
   # Required to redeploy without an outage.
   lifecycle {
@@ -251,8 +278,9 @@ resource "aws_alb" "splunk_shc_alb" {
   security_groups = [
     aws_security_group.splunk_sg_alb.id]
   subnets = [
-    var.subnetAid,var.subnetBid]
-//  enable_deletion_protection = true
+    var.subnetAid,
+    var.subnetBid]
+  //  enable_deletion_protection = true
 
   tags = {
     Environment = "production"
