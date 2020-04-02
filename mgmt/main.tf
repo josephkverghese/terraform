@@ -4,7 +4,22 @@ resource "aws_kms_key" "s3key" {
 }
 
 resource "aws_s3_bucket" "s3_bucket" {
-  name = var.s3_bucket_name
+  bucket = var.s3_bucket_name
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        kms_master_key_id = aws_kms_key.s3key.arn
+        sse_algorithm = "aws:kms"
+      }
+    }
+    tags = {
+      Name = var.s3_bucket_name
+    }
+  }
+}
+
+resource "aws_s3_bucket" "s3_bucket_splunk_license" {
+  bucket = var.splunk_license_s3_bucket_name
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
@@ -13,16 +28,7 @@ resource "aws_s3_bucket" "s3_bucket" {
       }
     }
   }
-}
-
-resource "aws_s3_bucket" "s3_bucket_splunk_license" {
-  name = var.splunk_license_s3_bucket_name
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.s3key.arn
-        sse_algorithm = "aws:kms"
-      }
-    }
+  tags = {
+    Name = var.s3_bucket_name
   }
 }
