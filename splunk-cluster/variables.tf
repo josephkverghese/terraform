@@ -2,7 +2,6 @@ variable "subnetAid" {}
 variable "subnetBid" {}
 variable "subnetACIDR" {}
 variable "subnetBCIDR" {}
-variable "securitygroup" {}
 variable "splunk-ami" {}
 variable "splunk_instance_type" {}
 variable "splunk_web_port" {}
