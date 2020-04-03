@@ -5,10 +5,6 @@ resource "aws_kms_key" "s3key" {
 
 resource "aws_s3_bucket" "s3_bucket_splunk_license" {
   bucket = var.splunk_license_bucket
-  provisioner "file" {
-    source = data.aws_s3_bucket_object.s3_license_file
-    destination = data.aws_s3_bucket_object.s3_license_file_dest
-  }
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
@@ -22,14 +18,12 @@ resource "aws_s3_bucket" "s3_bucket_splunk_license" {
   }
 }
 
-data "aws_s3_bucket_object" "s3_license_file" {
-  bucket = var.gtos_gmnts_landing
-  key = var.splunk_license_file
-}
-
-data "aws_s3_bucket_object" "s3_license_file_dest" {
-  bucket = var.splunk_license_bucket
-  key = var.splunk_license_file
+resource "null_resource" "copy_splunk_license_file" {
+  depends_on = [
+    aws_s3_bucket.s3_bucket_splunk_license]
+  provisioner "local-exec" {
+    command = "aws s3 cp s3://${var.gtos_gmnts_landing}/${var.splunk_license_file} s3://${var.splunk_license_bucket}/${var.splunk_license_file}}"
+  }
 }
 
 
