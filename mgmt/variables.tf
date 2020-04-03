@@ -14,3 +14,4 @@ variable "splunk_license_file_path" {
   default = "/data/gmnts/splunk/etc"
 }
 variable "project_name" {}
+variable "gtos_gmnts_landing" {}
