@@ -105,10 +105,11 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 data "aws_s3_bucket_object" "splunk_license_file" {
   bucket = aws_s3_bucket.s3_bucket_splunk_license.bucket
   key = var.splunk_license_file
+  depends_on = [null_resource.copy_splunk_license_file]
 }
 
-#splunk license server
-
+#create splunk license server
+#copy splunk license file from s3 bucket to this license master host
 resource "aws_instance" "splunk_license_server" {
 
   ami = var.splunk-ami
