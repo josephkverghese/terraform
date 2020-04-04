@@ -79,7 +79,7 @@ resource "aws_iam_role" "splunk_ec2_role" {
   name = "splunk_ec2_role"
   path = "/"
   # who can assume this role
-  assume_role_policy = data.aws_iam_policy_document.splunk_instance-assume-role-policy
+  assume_role_policy = data.aws_iam_policy_document.splunk_instance-assume-role-policy.json
 }
 
 # ec2 instances should be able to access other ec2 instances, cloudwatch, sns topic
