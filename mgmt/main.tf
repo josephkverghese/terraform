@@ -26,7 +26,6 @@ resource "null_resource" "copy_splunk_license_file" {
   }
 }
 
-
 #splunk security group for license server
 resource "aws_security_group" "splunk_sg_license_server" {
   name = "gtos_public_splunk_sg_license_server"
@@ -53,32 +52,34 @@ resource "aws_security_group" "splunk_sg_license_server" {
   }
 }
 
+#define an iam policy
+data "aws_iam_policy_document" "splunk_instance-assume-role-policy" {
+  statement {
+    actions = [
+      "sts:AssumeRole"]
 
+    principals {
+      type = "Service"
+      identifiers = [
+        "ec2.amazonaws.com"]
+    }
+  }
+  statement {
+    actions = [
+      "s3:GetObject",
+      "s3:ListObject"]
+
+    resources = [
+      aws_s3_bucket.s3_bucket_splunk_license.arn]
+  }
+}
+
+#add the above policy to the splunk ec2 instance role
 resource "aws_iam_role" "splunk_ec2_role" {
   name = "splunk_ec2_role"
   path = "/"
   # who can assume this role
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": "sts:AssumeRole",
-            "Principal": {
-               "Service": "ec2.amazonaws.com"
-            },
-            "Effect": "Allow",
-            "Sid": ""
-        },
-        {
-            "Action": ["s3:GetObject","s3:ListObject"],
-            "Effect": "Allow",
-            "Sid": "",
-            "Resource":[${aws_s3_bucket.s3_bucket_splunk_license.arn}]
-        }
-    ]
-}
-EOF
+  assume_role_policy = data.aws_iam_policy_document.splunk_instance-assume-role-policy
 }
 
 # ec2 instances should be able to access other ec2 instances, cloudwatch, sns topic
@@ -86,7 +87,7 @@ EOF
 //  policy = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 //}
 
-#attach the policy to the iam role
+#attach an additional policy to the splunk ec2 iam role
 resource "aws_iam_policy_attachment" "splunk_ec2_attach" {
   name = "splunk_ec2_attach"
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
@@ -94,6 +95,7 @@ resource "aws_iam_policy_attachment" "splunk_ec2_attach" {
     aws_iam_role.splunk_ec2_role.id]
 }
 
+#create the instance profile with the above splunk ec2 role
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "iam_instance_profile"
   role = aws_iam_role.splunk_ec2_role.id
