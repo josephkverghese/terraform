@@ -139,7 +139,7 @@ resource "aws_instance" "splunk_license_server" {
   sudo -u splunk /data/gmnts/splunk/bin/splunk add licenses /data/gmnts/splunk/etc/Splunk.License
   EOF
   provisioner "file" {
-    source = data.aws_s3_bucket_object.splunk_license_file
+    content = data.aws_s3_bucket_object.splunk_license_file.body
     destination = var.splunk_license_file_path
   }
   tags = {
