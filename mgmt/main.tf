@@ -64,6 +64,10 @@ data "aws_iam_policy_document" "splunk_instance-assume-role-policy" {
         "ec2.amazonaws.com"]
     }
   }
+}
+
+data "aws_iam_policy_document" "splunk_instance-assume-role-policy2" {
+
   statement {
     actions = [
       "s3:GetObject",
@@ -73,7 +77,6 @@ data "aws_iam_policy_document" "splunk_instance-assume-role-policy" {
       aws_s3_bucket.s3_bucket_splunk_license.arn]
   }
 }
-
 #add the above policy to the splunk ec2 instance role
 resource "aws_iam_role" "splunk_ec2_role" {
   name = "splunk_ec2_role"
@@ -88,11 +91,17 @@ resource "aws_iam_role" "splunk_ec2_role" {
 //}
 
 #attach an additional policy to the splunk ec2 iam role
-resource "aws_iam_policy_attachment" "splunk_ec2_attach" {
+resource "aws_iam_role_policy_attachment" "splunk_ec2_attach" {
   name = "splunk_ec2_attach"
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
-  roles = [
-    aws_iam_role.splunk_ec2_role.id]
+  role = aws_iam_role.splunk_ec2_role.id
+}
+
+#attach an additional policy to the splunk ec2 iam role
+resource "aws_iam_role_policy_attachment" "splunk_ec2_attach2" {
+  name = "splunk_ec2_attach"
+  policy_arn = data.aws_iam_policy_document.splunk_instance-assume-role-policy2
+  role = aws_iam_role.splunk_ec2_role.id
 }
 
 #create the instance profile with the above splunk ec2 role
