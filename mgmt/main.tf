@@ -133,6 +133,10 @@ resource "aws_instance" "splunk_license_server" {
     aws_security_group.splunk_sg_license_server.id]
   key_name = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
+  user_data =<<EOF
+  #! /bin/bash
+  sudo -u splunk /data/gmnts/splunk/bin/splunk add licenses /data/gmnts/splunk/etc/Splunk.License
+  EOF
   provisioner "file" {
     source = data.aws_s3_bucket_object.splunk_license_file
     destination = var.splunk_license_file_path
