@@ -77,6 +77,13 @@ data "aws_iam_policy_document" "splunk_instance-assume-role-policy2" {
       aws_s3_bucket.s3_bucket_splunk_license.arn]
   }
 }
+resource "aws_iam_policy" "splunk_s3" {
+  name = "splunk_s3"
+  path = "/"
+  description = "My test policy"
+
+  policy = data.aws_iam_policy_document.splunk_instance-assume-role-policy2.json
+}
 #add the above policy to the splunk ec2 instance role
 resource "aws_iam_role" "splunk_ec2_role" {
   name = "splunk_ec2_role"
@@ -92,15 +99,13 @@ resource "aws_iam_role" "splunk_ec2_role" {
 
 #attach an additional policy to the splunk ec2 iam role
 resource "aws_iam_role_policy_attachment" "splunk_ec2_attach" {
-  name = "splunk_ec2_attach"
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
   role = aws_iam_role.splunk_ec2_role.id
 }
 
 #attach an additional policy to the splunk ec2 iam role
 resource "aws_iam_role_policy_attachment" "splunk_ec2_attach2" {
-  name = "splunk_ec2_attach"
-  policy_arn = data.aws_iam_policy_document.splunk_instance-assume-role-policy2
+  policy_arn = aws_iam_policy.splunk_s3.arn
   role = aws_iam_role.splunk_ec2_role.id
 }
 
