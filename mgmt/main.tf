@@ -5,6 +5,7 @@ resource "aws_kms_key" "s3key" {
 
 resource "aws_s3_bucket" "s3_bucket_splunk_license" {
   bucket = var.splunk_license_bucket
+  force_destroy = true
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
