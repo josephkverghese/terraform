@@ -24,7 +24,7 @@ resource "aws_vpc" "gtosvpc" {
 resource "aws_internet_gateway" "gtos_igw" {
   vpc_id = aws_vpc.gtosvpc.id
   tags = {
-    project = "gtos"
+    Project = var.project_name
     group = "gmnts"
     Name = "gtos_igw"
   }
@@ -39,7 +39,7 @@ resource "aws_route_table" "gtos_route_table_public" {
   }
   tags = {
     Name = "gtos_public_rt"
-    project = "gtos"
+    Project = var.project_name
     group = "gmnts"
   }
 }
@@ -49,8 +49,8 @@ resource "aws_route_table" "gtos_route_table_private" {
   vpc_id = aws_vpc.gtosvpc.id
   tags = {
     Name = "gtos_private_rt"
-    project = "gtos"
-    group = "gmnts"
+    Project = var.project_name
+    Group = "gmnts"
   }
 }
 
@@ -64,6 +64,8 @@ resource "aws_subnet" "gtos_subnet_public" {
 
   tags = {
     Name = "gtos_public_subnet_${count.index+1}"
+    Project = var.project_name
+
   }
 }
 
@@ -77,6 +79,8 @@ resource "aws_subnet" "gtos_subnet_private" {
 
   tags = {
     Name = "gtos_public_subnet_${count.index+1}"
+    Project = var.project_name
+
   }
 }
 
@@ -85,9 +89,10 @@ resource "aws_subnet" "gtos_user_subnet" {
   vpc_id = aws_vpc.gtosvpc.id
   cidr_block = var.user_cidr
   availability_zone = data.aws_availability_zones.available.names[0]
-
   tags = {
     Name = "gtos_private_subnet"
+    Project = var.project_name
+
   }
 }
 

@@ -10,13 +10,10 @@ variable "public_cidrs" {
 variable "private_cidrs" {
   type = list
 }
-variable "accessip" {
-  type = string
-}
 
 variable "aws_region" {
 }
 
 variable "user_cidr" {}
 
-variable "accessip_ssh" {}
+variable "project_name" {}
