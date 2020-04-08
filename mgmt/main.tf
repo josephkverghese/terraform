@@ -19,6 +19,7 @@ resource "aws_s3_bucket" "s3_bucket_splunk_license" {
   }
 }
 
+#copy from landing bucket to license bukcet
 resource "null_resource" "copy_splunk_license_file" {
   depends_on = [
     aws_s3_bucket.s3_bucket_splunk_license]
@@ -93,11 +94,6 @@ resource "aws_iam_role" "splunk_ec2_role" {
   assume_role_policy = data.aws_iam_policy_document.splunk_instance-assume-role-policy.json
 }
 
-# ec2 instances should be able to access other ec2 instances, cloudwatch, sns topic
-//resource "aws_iam_policy" "splunk_ec2_policy" {
-//  policy = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
-//}
-
 #attach an additional policy to the splunk ec2 iam role
 resource "aws_iam_role_policy_attachment" "splunk_ec2_attach" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
@@ -120,7 +116,8 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 data "aws_s3_bucket_object" "splunk_license_file" {
   bucket = aws_s3_bucket.s3_bucket_splunk_license.bucket
   key = var.splunk_license_file
-  depends_on = [null_resource.copy_splunk_license_file]
+  depends_on = [
+    null_resource.copy_splunk_license_file]
 }
 
 #create splunk license server
@@ -129,12 +126,12 @@ resource "aws_instance" "splunk_license_server" {
 
   ami = var.splunk-ami
   instance_type = var.splunk_instance_type
-  subnet_id = var.subnetAid
+  subnet_id = var.subnetCid
   vpc_security_group_ids = [
     aws_security_group.splunk_sg_license_server.id]
   key_name = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
-  user_data =<<EOF
+  user_data = <<EOF
   #! /bin/bash
   sudo -u splunk /data/gmnts/splunk/bin/splunk add licenses /data/gmnts/splunk/etc/Splunk.License
   EOF
@@ -144,5 +141,97 @@ resource "aws_instance" "splunk_license_server" {
   }
   tags = {
     Name = "${var.project_name}-License Server"
+  }
+}
+
+
+# Request a spot instance - bastion host
+resource "aws_spot_instance_request" "bastionH_WindowsUser" {
+  count = 2
+  ami = var.ec2_ami[count.index]
+  instance_type = var.bastion_instance_type
+  spot_price = 0.1
+  spot_type = "one-time"
+  #block_duration_minutes = 60
+  #valid_until="2020-03-21T13:00:00-07:00"
+  key_name = var.key_name
+  subnet_id = var.subnetAid
+  vpc_security_group_ids = [
+    bastionH_WinUser_sgs[count.index]]
+  tags = {
+    Name = "${var.bastion_windows_name[count.index]}"
+  }
+}
+
+
+resource "aws_security_group" "bastionH_sg" {
+  vpc_id = var.vpc_id
+  name = "bastionH_public_sg"
+  description = "Used for accessing bastion host"
+
+  #SSH
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = [
+      var.accessip]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = [
+      "0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "bastionH_sg" {
+  vpc_id = var.vpc_id
+  name = "bastionH_public_sg"
+  description = "Used for accessing bastion host"
+
+  #SSH
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = [
+      var.accessip]
+  }
+
+  egress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = [
+      var.subnetACIDR,
+      var.subnetBCIDR,
+      var.subnetCCIDR,
+      var.subnetDCIDR]
+  }
+}
+
+resource "aws_security_group" "WinUser_sg" {
+  vpc_id = var.vpc_id
+  name = "bastionH_public_sg"
+  description = "Used for accessing bastion host"
+
+  #RDP
+  ingress {
+    from_port = 3389
+    to_port = 3389
+    protocol = "tcp"
+    cidr_blocks = [
+      var.accessip]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = [
+      "0.0.0.0/0"]
   }
 }
