@@ -1,10 +1,14 @@
 #----networking/variables.tf----
 variable "vpc_cidr" {
-  type = "string"
+  type = string
 }
 
 variable "public_cidrs" {
-  type = "list"
+  type = list
+}
+
+variable "private_cidrs" {
+  type = list
 }
 variable "accessip" {
   type = string
@@ -13,6 +17,6 @@ variable "accessip" {
 variable "aws_region" {
 }
 
-variable "private_cidr" {}
+variable "user_cidr" {}
 
 variable "accessip_ssh" {}

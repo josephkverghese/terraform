@@ -1,4 +1,7 @@
-# vpc and 2 subnets
+# vpc
+# 2 public subnets
+# 2 private subnet
+# 1 user subnet
 # internet gateway
 # custom public routetable with route to internetgateway
 # route table associations for both the public subnets
@@ -11,7 +14,7 @@ resource "aws_vpc" "gtosvpc" {
   enable_dns_hostnames = true
   enable_dns_support = true
   tags = {
-    Name = "gtosvpc"
+    Name = "gtos_vpc"
     project = "gtos"
     group = "gmnts"
   }
@@ -28,7 +31,7 @@ resource "aws_internet_gateway" "gtos_igw" {
 }
 
 # public route table
-resource "aws_route_table" "gtos_public_rt" {
+resource "aws_route_table" "gtos_route_table_public" {
   vpc_id = aws_vpc.gtosvpc.id
   route {
     cidr_block = "0.0.0.0/0"
@@ -42,9 +45,8 @@ resource "aws_route_table" "gtos_public_rt" {
 }
 
 # private route table
-resource "aws_default_route_table" "gtos_private_rt" {
-  default_route_table_id = aws_vpc.gtosvpc.default_route_table_id
-
+resource "aws_route_table" "gtos_route_table_private" {
+  vpc_id = aws_vpc.gtosvpc.id
   tags = {
     Name = "gtos_private_rt"
     project = "gtos"
@@ -53,7 +55,7 @@ resource "aws_default_route_table" "gtos_private_rt" {
 }
 
 #create two public subnets
-resource "aws_subnet" "gtos_public_subnet" {
+resource "aws_subnet" "gtos_subnet_public" {
   count = 2
   vpc_id = aws_vpc.gtosvpc.id
   cidr_block = var.public_cidrs[count.index]
@@ -65,10 +67,23 @@ resource "aws_subnet" "gtos_public_subnet" {
   }
 }
 
+
+#create two private subnets
+resource "aws_subnet" "gtos_subnet_private" {
+  count = 2
+  vpc_id = aws_vpc.gtosvpc.id
+  cidr_block = var.private_cidrs[count.index]
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+
+  tags = {
+    Name = "gtos_public_subnet_${count.index+1}"
+  }
+}
+
 #create a private subnet, this is where users live
 resource "aws_subnet" "gtos_user_subnet" {
   vpc_id = aws_vpc.gtosvpc.id
-  cidr_block = var.private_cidr
+  cidr_block = var.user_cidr
   availability_zone = data.aws_availability_zones.available.names[0]
 
   tags = {
@@ -76,54 +91,17 @@ resource "aws_subnet" "gtos_user_subnet" {
   }
 }
 
-
 #route table association - public
 resource "aws_route_table_association" "gtos_public_rt_assoc" {
-  count = length(aws_subnet.gtos_public_subnet)
-  subnet_id = aws_subnet.gtos_public_subnet.*.id[count.index]
-  route_table_id = aws_route_table.gtos_public_rt.id
+  count = length(aws_subnet.gtos_subnet_public)
+  subnet_id = aws_subnet.gtos_subnet_public.*.id[count.index]
+  route_table_id = aws_route_table.gtos_route_table_public.id
 }
-#ec2 security group - public to restrict traffic to ec2 instances
-resource "aws_security_group" "gtos_public_sg" {
-  name = "gtos_public_sg"
-  description = "Used for access to the public instances"
-  vpc_id = aws_vpc.gtosvpc.id
 
-  #SSH
 
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = [
-      var.accessip_ssh]
-  }
-
-  #HTTP
-
-  ingress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = [
-      var.accessip]
-  }
-
-  #splunk-web
-
-  ingress {
-    from_port = 8080
-    to_port = 8080
-    protocol = "tcp"
-    cidr_blocks = [
-      var.accessip]
-  }
-
-  egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = [
-      "0.0.0.0/0"]
-  }
+#route table association - public
+resource "aws_route_table_association" "gtos_private_rt_assoc" {
+  count = length(aws_subnet.gtos_subnet_private)
+  subnet_id = aws_subnet.gtos_subnet_private.*.id[count.index]
+  route_table_id = aws_route_table.gtos_route_table_private.id
 }
