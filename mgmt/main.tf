@@ -157,7 +157,9 @@ resource "aws_spot_instance_request" "bastionH_WindowsUser" {
   key_name = var.key_name
   subnet_id = var.subnetAid
   vpc_security_group_ids = [
-    bastionH_WinUser_sgs[count.index]]
+    [
+      aws_security_group.bastionH_sg.id,
+      aws_security_group.WinUser_sg.id][count.index]]
   tags = {
     Name = "${var.bastion_windows_name[count.index]}"
   }
