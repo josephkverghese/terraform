@@ -181,29 +181,6 @@ resource "aws_security_group" "bastionH_sg" {
   }
 
   egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = [
-      "0.0.0.0/0"]
-  }
-}
-
-resource "aws_security_group" "bastionH_sg" {
-  vpc_id = var.vpc_id
-  name = "bastionH_public_sg"
-  description = "Used for accessing bastion host"
-
-  #SSH
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = [
-      var.accessip]
-  }
-
-  egress {
     from_port = 22
     to_port = 22
     protocol = "tcp"
