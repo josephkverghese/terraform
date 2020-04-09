@@ -90,7 +90,7 @@ resource "aws_subnet" "gtos_user_subnet" {
   cidr_block = var.user_cidr
   availability_zone = data.aws_availability_zones.available.names[0]
   tags = {
-    Name = "gtos_private_subnet"
+    Name = "gtos_user_subnet"
     Project = var.project_name
 
   }
