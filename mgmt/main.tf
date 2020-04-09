@@ -28,34 +28,8 @@ resource "null_resource" "copy_splunk_license_file" {
   }
 }
 
-#splunk security group for license server
-resource "aws_security_group" "splunk_sg_license_server" {
-  name = "gtos_public_splunk_sg_license_server"
-  description = "security group to allow access to splunk license server"
-  vpc_id = var.vpc_id
-
-  #SSH
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = [
-      var.subnetACIDR]
-  }
-
-  #splunk-web
-  ingress {
-    from_port = var.splunk_web_port
-    to_port = var.splunk_web_port
-    protocol = "tcp"
-    cidr_blocks = [
-      var.subnetACIDR,
-      var.subnetBCIDR]
-  }
-}
-
 #define an iam policy
-data "aws_iam_policy_document" "splunk_instance-assume-role-policy" {
+data "aws_iam_policy_document" "splunk-instance-assume-role-policy" {
   statement {
     actions = [
       "sts:AssumeRole"]
@@ -68,7 +42,7 @@ data "aws_iam_policy_document" "splunk_instance-assume-role-policy" {
   }
 }
 
-data "aws_iam_policy_document" "splunk_instance-assume-role-policy2" {
+data "aws_iam_policy_document" "splunk-get-s3-object-policy2" {
 
   statement {
     actions = [
@@ -82,16 +56,15 @@ data "aws_iam_policy_document" "splunk_instance-assume-role-policy2" {
 resource "aws_iam_policy" "splunk_s3" {
   name = "splunk_s3"
   path = "/"
-  description = "My test policy"
-
-  policy = data.aws_iam_policy_document.splunk_instance-assume-role-policy2.json
+  description = "access splunk license bucket to get objects"
+  policy = data.aws_iam_policy_document.splunk-instance-assume-role-policy.json
 }
 #add the above policy to the splunk ec2 instance role
 resource "aws_iam_role" "splunk_ec2_role" {
   name = "splunk_ec2_role"
   path = "/"
   # who can assume this role
-  assume_role_policy = data.aws_iam_policy_document.splunk_instance-assume-role-policy.json
+  assume_role_policy = data.aws_iam_policy_document.splunk-get-s3-object-policy2.json
 }
 
 #attach an additional policy to the splunk ec2 iam role
@@ -120,6 +93,7 @@ data "aws_s3_bucket_object" "splunk_license_file" {
     null_resource.copy_splunk_license_file]
 }
 
+
 #create splunk license server
 #copy splunk license file from s3 bucket to this license master host
 resource "aws_instance" "splunk_license_server" {
@@ -144,6 +118,40 @@ resource "aws_instance" "splunk_license_server" {
   }
 }
 
+#splunk security group for license server
+resource "aws_security_group" "splunk_sg_license_server" {
+  name = "gtos_public_splunk_sg_license_server"
+  description = "security group to allow access to splunk license server"
+  vpc_id = var.vpc_id
+
+  #SSH
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = [
+      var.subnetUCIDR]
+  }
+
+  #splunk-mgmt
+  ingress {
+    from_port = var.splunk_mgmt_port
+    to_port = var.splunk_mgmt_port
+    protocol = "tcp"
+    cidr_blocks = [
+      var.subnetCCIDR,
+      var.subnetDCIDR]
+  }
+  #splunk-web
+  ingress {
+    from_port = var.splunk_web_port
+    to_port = var.splunk_web_port
+    protocol = "tcp"
+    cidr_blocks = [
+      var.subnetUCIDR]
+  }
+
+}
 
 # Request a spot instance - bastion host
 resource "aws_spot_instance_request" "bastionH_WindowsUser" {
@@ -194,7 +202,7 @@ resource "aws_security_group" "bastionH_sg" {
 
 resource "aws_security_group" "WinUser_sg" {
   vpc_id = var.vpc_id
-  name = "bastionH_public_sg"
+  name = "WinUser_public_sg"
   description = "Used for accessing bastion host"
 
   #RDP
@@ -207,10 +215,13 @@ resource "aws_security_group" "WinUser_sg" {
   }
 
   egress {
-    from_port = 0
-    to_port = 0
+    from_port = var.splunk_web_port
+    to_port = var.splunk_web_port
     protocol = "-1"
     cidr_blocks = [
-      "0.0.0.0/0"]
+      var.subnetACIDR,
+      var.subnetBCIDR,
+      var.subnetCCIDR,
+      var.subnetDCIDR]
   }
 }

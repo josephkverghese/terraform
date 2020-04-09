@@ -6,6 +6,7 @@ variable "subnetACIDR" {}
 variable "subnetBCIDR" {}
 variable "subnetCCIDR" {}
 variable "subnetDCIDR" {}
+variable "subnetUCIDR" {}
 variable "splunk-ami" {}
 variable "splunk_instance_type" {}
 variable "vpc_id" {}
