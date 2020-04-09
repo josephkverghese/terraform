@@ -78,7 +78,7 @@ resource "aws_subnet" "gtos_subnet_private" {
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    Name = "gtos_public_subnet_${count.index+1}"
+    Name = "gtos_private_subnet_${count.index+1}"
     Project = var.project_name
 
   }
