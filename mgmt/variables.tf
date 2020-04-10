@@ -1,6 +1,7 @@
 variable "subnetAid" {}
 variable "subnetBid" {}
 variable "subnetCid" {}
+variable "subnetDid" {}
 variable "subnetUid" {}
 variable "subnetACIDR" {}
 variable "subnetBCIDR" {}
@@ -23,3 +24,4 @@ variable "accessip" {}
 variable "splunk_license_file_path" {}
 variable "bastion_windows_name" {}
 variable "spot_price" {}
+variable "endpoint_service_name" {}

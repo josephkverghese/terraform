@@ -93,11 +93,27 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 //    null_resource.copy_splunk_license_file]
 //}
 
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id = var.vpc_id
+  service_name = var.endpoint_service_name
+  subnet_ids = [
+    var.subnetAid,
+    var.subnetBid,
+    var.subnetCid,
+    var.subnetDid]
+
+  tags = {
+    project = var.project_name
+    Environment = "test"
+  }
+}
+
 
 #create splunk license server
 #copy splunk license file from s3 bucket to this license master host
 resource "aws_instance" "splunk_license_server" {
-
+  depends_on = [
+    aws_vpc_endpoint.s3]
   ami = var.splunk-ami
   instance_type = var.splunk_instance_type
   subnet_id = var.subnetCid
@@ -114,6 +130,7 @@ resource "aws_instance" "splunk_license_server" {
   //    content = data.aws_s3_bucket_object.splunk_license_file.body
   //    destination = var.splunk_license_file_path
   //  }
+
   provisioner "remote-exec" {
     inline = [
       "wget https://gtos-gmnts-splunk-license.s3.us-east-1.amazonaws.com/Splunk.License /data/gmnts/splunk/etc/"]
@@ -155,6 +172,14 @@ resource "aws_security_group" "splunk_sg_license_server" {
     cidr_blocks = [
       var.subnetACIDR
     ]
+  }
+
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    prefix_list_ids = [
+      aws_vpc_endpoint.s3.prefix_list_id]
   }
 
 }
