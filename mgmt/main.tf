@@ -120,7 +120,7 @@ resource "aws_instance" "splunk_license_server" {
 
 #splunk security group for license server
 resource "aws_security_group" "splunk_sg_license_server" {
-  name = "gtos_public_splunk_sg_license_server"
+  name = "gtos_splunk_license_server_sg"
   description = "security group for splunk license server"
   vpc_id = var.vpc_id
 
