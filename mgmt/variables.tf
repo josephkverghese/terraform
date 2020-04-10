@@ -30,4 +30,3 @@ variable "splunk_license_master_key_file_location" {}
 variable "ec2_user" {}
 variable "bastion_user" {}
 variable "bastion_key_file_location" {}
-variable "bastion_host_ip" {}
