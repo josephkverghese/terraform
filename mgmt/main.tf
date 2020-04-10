@@ -85,13 +85,13 @@ resource "aws_iam_instance_profile" "ec2_profile" {
   role = aws_iam_role.splunk_ec2_role.id
 }
 
-#splunk license file source
-data "aws_s3_bucket_object" "splunk_license_file" {
-  bucket = aws_s3_bucket.s3_bucket_splunk_license.bucket
-  key = var.splunk_license_file
-  depends_on = [
-    null_resource.copy_splunk_license_file]
-}
+//#splunk license file source
+//data "aws_s3_bucket_object" "splunk_license_file" {
+//  bucket = aws_s3_bucket.s3_bucket_splunk_license.bucket
+//  key = var.splunk_license_file
+//  depends_on = [
+//    null_resource.copy_splunk_license_file]
+//}
 
 
 #create splunk license server
@@ -108,10 +108,15 @@ resource "aws_instance" "splunk_license_server" {
   user_data = <<EOF
   #! /bin/bash
   sudo -u splunk /data/gmnts/splunk/bin/splunk add licenses /data/gmnts/splunk/etc/Splunk.License
+  sudo -u splunk service splunk restart
   EOF
-  provisioner "file" {
-    content = data.aws_s3_bucket_object.splunk_license_file.body
-    destination = var.splunk_license_file_path
+  //  provisioner "file" {
+  //    content = data.aws_s3_bucket_object.splunk_license_file.body
+  //    destination = var.splunk_license_file_path
+  //  }
+  provisioner "remote-exec" {
+    inline = [
+      "wget https://gtos-gmnts-splunk-license.s3.us-east-1.amazonaws.com/Splunk.License /data/gmnts/splunk/etc/"]
   }
   tags = {
     Name = "${var.project_name}-License Server"
