@@ -177,8 +177,8 @@ resource "aws_security_group" "splunk_sg_license_server" {
     from_port = 443
     to_port = 443
     protocol = "tcp"
-    prefix_list_ids = [
-      aws_vpc_endpoint.s3.prefix_list_id]
+    cidr_blocks = [
+      "0.0.0.0/0"]
   }
 
 }
