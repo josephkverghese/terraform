@@ -22,3 +22,4 @@ variable "bastion_instance_type" {}
 variable "accessip" {}
 variable "splunk_license_file_path" {}
 variable "bastion_windows_name" {}
+variable "spot_price" {}
