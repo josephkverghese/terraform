@@ -131,13 +131,15 @@ resource "aws_instance" "splunk_license_server" {
   provisioner "remote-exec" {
     inline = [
       "wget https://gtos-gmnts-splunk-license.s3.us-east-1.amazonaws.com/Splunk.License /data/gmnts/splunk/etc/"]
-  }
-  connection {
-    bastion_private_key = file(var.bastion_key_file_location)
-    bastion_user = var.bastion_user
-    user = var.ec2_user
-    private_key = var.splunk_license_master_key_file_location
-    bastion_host = aws_spot_instance_request.bastionH_WindowsUser[0].public_ip
+
+    connection {
+      bastion_private_key = file(var.bastion_key_file_location)
+      bastion_user = var.bastion_user
+      user = var.ec2_user
+      private_key = var.splunk_license_master_key_file_location
+      bastion_host = aws_spot_instance_request.bastionH_WindowsUser[0].public_ip
+      host = aws_instance.splunk_license_server.private_ip
+    }
   }
   tags = {
     Name = "${var.project_name}-License Server"
