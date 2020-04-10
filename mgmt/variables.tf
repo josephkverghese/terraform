@@ -25,4 +25,4 @@ variable "splunk_license_file_path" {}
 variable "bastion_windows_name" {}
 variable "spot_price" {}
 variable "endpoint_service_name" {}
-variable "private_route_table_id" {}
+variable "gtos_private_route_table_id" {}
