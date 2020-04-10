@@ -26,3 +26,7 @@ output "user_subnet" {
 output "user_subnet_cidr" {
   value = aws_subnet.gtos_user_subnet.cidr_block
 }
+
+output "private_route_table_id" {
+  value = aws_route_table.gtos_route_table_private.id
+}

@@ -96,16 +96,15 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 resource "aws_vpc_endpoint" "s3" {
   vpc_id = var.vpc_id
   service_name = var.endpoint_service_name
-  subnet_ids = [
-    var.subnetAid,
-    var.subnetBid,
-    var.subnetCid,
-    var.subnetDid]
-
   tags = {
     project = var.project_name
     Environment = "test"
   }
+}
+
+resource "aws_vpc_endpoint_route_table_association" "splunk_pvt_s3" {
+  route_table_id = var.private_route_table_id
+  vpc_endpoint_id = aws_vpc_endpoint.s3.id
 }
 
 
