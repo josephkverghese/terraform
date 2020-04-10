@@ -6,14 +6,14 @@ resource "aws_kms_key" "s3key" {
 resource "aws_s3_bucket" "s3_bucket_splunk_license" {
   bucket = var.splunk_license_bucket
   force_destroy = true
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.s3key.arn
-        sse_algorithm = "aws:kms"
-      }
-    }
-  }
+//  server_side_encryption_configuration {
+//    rule {
+//      apply_server_side_encryption_by_default {
+//        kms_master_key_id = aws_kms_key.s3key.arn
+//        sse_algorithm = "aws:kms"
+//      }
+//    }
+//  }
   tags = {
     Name = var.splunk_license_bucket
   }
@@ -46,9 +46,7 @@ data "aws_iam_policy_document" "splunk-get-s3-object-policy2" {
 
   statement {
     actions = [
-      "s3:GetObject",
-      "s3:ListObject"]
-
+      "s3:Get*"]
     resources = [
       aws_s3_bucket.s3_bucket_splunk_license.arn]
   }
