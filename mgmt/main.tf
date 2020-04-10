@@ -57,14 +57,14 @@ resource "aws_iam_policy" "splunk_s3" {
   name        = "splunk_s3"
   path        = "/"
   description = "access splunk license bucket to get objects"
-  policy      = data.aws_iam_policy_document.splunk-get-s3-object-policy2
+  policy      = data.aws_iam_policy_document.splunk-get-s3-object-policy2.json
 }
 #add the above policy to the splunk ec2 instance role
 resource "aws_iam_role" "splunk_ec2_role" {
   name = "splunk_ec2_role"
   path = "/"
   # who can assume this role
-  assume_role_policy = data.aws_iam_policy_document.splunk-instance-assume-role-policy
+  assume_role_policy = data.aws_iam_policy_document.splunk-instance-assume-role-policy.json
 }
 
 #attach an additional policy to the splunk ec2 iam role
