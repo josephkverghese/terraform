@@ -60,7 +60,8 @@ resource "aws_iam_policy" "splunk_s3" {
 }
 #add the above policy to the splunk ec2 instance role
 resource "aws_iam_role" "splunk_ec2_role" {
-  depends_on = [aws_iam_policy.splunk_s3]
+  depends_on = [
+    aws_iam_policy.splunk_s3]
   name = "splunk_ec2_role"
   path = "/"
   # who can assume this role
@@ -122,6 +123,7 @@ resource "aws_instance" "splunk_license_server" {
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
   user_data = <<EOF
   #! /bin/bash
+  sudo -u splunk wget https://gtos-gmnts-splunk-license.s3.us-east-1.amazonaws.com/Splunk.License /data/gmnts/splunk/etc/
   sudo -u splunk /data/gmnts/splunk/bin/splunk add licenses /data/gmnts/splunk/etc/Splunk.License
   sudo -u splunk service splunk restart
   EOF
@@ -129,22 +131,22 @@ resource "aws_instance" "splunk_license_server" {
   //    content = data.aws_s3_bucket_object.splunk_license_file.body
   //    destination = var.splunk_license_file_path
   //  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "wget https://gtos-gmnts-splunk-license.s3.us-east-1.amazonaws.com/Splunk.License /data/gmnts/splunk/etc/"]
-
-    connection {
-      bastion_private_key = var.bastion_key
-      bastion_user = var.bastion_user
-      user = var.ec2_user
-      private_key = var.splunk_license_master_key
-      bastion_host = aws_spot_instance_request.bastionH_WindowsUser.0.public_ip
-      host = aws_instance.splunk_license_server.private_ip
-      timeout = "10m"
-      agent = false
-    }
-  }
+//
+//  provisioner "remote-exec" {
+//    inline = [
+//      "wget https://gtos-gmnts-splunk-license.s3.us-east-1.amazonaws.com/Splunk.License /data/gmnts/splunk/etc/"]
+//
+//    connection {
+//      bastion_private_key = var.bastion_key
+//      bastion_user = var.bastion_user
+//      user = var.ec2_user
+//      private_key = var.splunk_license_master_key
+//      bastion_host = aws_spot_instance_request.bastionH_WindowsUser.0.public_ip
+//      host = aws_instance.splunk_license_server.private_ip
+//      timeout = "10m"
+//      type = "ssh"
+//    }
+//  }
   tags = {
     Name = "${var.project_name}-License Server"
   }
