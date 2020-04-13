@@ -142,6 +142,7 @@ resource "aws_instance" "splunk_license_server" {
       bastion_host = aws_spot_instance_request.bastionH_WindowsUser.0.public_ip
       host = aws_instance.splunk_license_server.private_ip
       timeout = "10m"
+      agent = false
     }
   }
   tags = {
