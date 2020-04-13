@@ -139,7 +139,7 @@ resource "aws_instance" "splunk_license_server" {
       bastion_user = var.bastion_user
       user = var.ec2_user
       private_key = file(var.splunk_license_master_key_file_location)
-      bastion_host = aws_spot_instance_request.bastionH_WindowsUser[0].public_ip
+      bastion_host = aws_spot_instance_request.bastionH_WindowsUser.0.public_ip
       host = aws_instance.splunk_license_server.private_ip
       timeout = "10m"
     }
