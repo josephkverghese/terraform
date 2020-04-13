@@ -47,10 +47,11 @@ data "aws_iam_policy_document" "splunk-get-s3-object-policy2" {
 
   statement {
     actions = [
-      "s3:GetObject"]
+      "s3:Get*"]
     effect = "Allow"
     resources = [
-      "arn:aws:s3:::${var.splunk_license_bucket}/*"]
+      "arn:aws:s3:::*"]
+    //      "arn:aws:s3:::${var.splunk_license_bucket}/*"]
   }
 }
 resource "aws_iam_policy" "splunk_s3" {
