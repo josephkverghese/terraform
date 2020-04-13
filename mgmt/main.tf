@@ -6,6 +6,7 @@ resource "aws_kms_key" "s3key" {
 resource "aws_s3_bucket" "s3_bucket_splunk_license" {
   bucket = var.splunk_license_bucket
   force_destroy = true
+  acl = "private"
   //  server_side_encryption_configuration {
   //    rule {
   //      apply_server_side_encryption_by_default {
@@ -59,6 +60,7 @@ resource "aws_iam_policy" "splunk_s3" {
 }
 #add the above policy to the splunk ec2 instance role
 resource "aws_iam_role" "splunk_ec2_role" {
+  depends_on = [aws_iam_policy.splunk_s3]
   name = "splunk_ec2_role"
   path = "/"
   # who can assume this role
@@ -139,6 +141,7 @@ resource "aws_instance" "splunk_license_server" {
       private_key = file(var.splunk_license_master_key_file_location)
       bastion_host = aws_spot_instance_request.bastionH_WindowsUser[0].public_ip
       host = aws_instance.splunk_license_server.private_ip
+      timeout = "10m"
     }
   }
   tags = {
