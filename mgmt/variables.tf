@@ -26,7 +26,7 @@ variable "bastion_windows_name" {}
 variable "spot_price" {}
 variable "endpoint_service_name" {}
 variable "gtos_private_route_table_id" {}
-variable "splunk_license_master_key_file_location" {}
+variable "splunk_license_master_key" {}
 variable "ec2_user" {}
 variable "bastion_user" {}
-variable "bastion_key_file_location" {}
+variable "bastion_key" {}
