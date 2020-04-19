@@ -125,7 +125,7 @@ resource "aws_instance" "splunk_license_server" {
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
   user_data = <<EOF
   #! /bin/bash
-  sudo -u splunk aws s3 cp s3://${var.splunk_license_bucket}/${var.splunk_license_file} /data/gmnts/splunk/etc/
+  sudo -u splunk /usr/local/bin/aws s3 cp s3://${var.splunk_license_bucket}/${var.splunk_license_file} /data/gmnts/splunk/etc/
   sudo -u splunk wget https://gtos-gmnts-splunk-license.s3.us-east-1.amazonaws.com/Splunk.License /data/gmnts/splunk/etc/
   sudo -u splunk /data/gmnts/splunk/bin/splunk add licenses /data/gmnts/splunk/etc/Splunk.License
   sudo -u splunk service splunk restart
