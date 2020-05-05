@@ -110,6 +110,15 @@ resource "aws_vpc_endpoint_route_table_association" "splunk_pvt_s3" {
   vpc_endpoint_id = aws_vpc_endpoint.s3.id
 }
 
+data "template_file" "splunk_l_server_init" {
+  template = file("init_license_server")
+  vars = {
+    msg = "starting license server provisioning",
+    splunk_license_bucket = var.splunk_license_bucket,
+    splunk_license_file = var.splunk_license_file
+  }
+}
+
 
 #create splunk license server
 #copy splunk license file from s3 bucket to this license master host
@@ -123,13 +132,7 @@ resource "aws_instance" "splunk_license_server" {
     aws_security_group.splunk_sg_license_server.id]
   key_name = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
-  user_data = <<EOF
-  #! /bin/bash
-  sudo -u splunk /usr/local/bin/aws s3 cp s3://${var.splunk_license_bucket}/${var.splunk_license_file} /data/gmnts/splunk/etc/
-  sudo -u splunk wget https://gtos-gmnts-splunk-license.s3.us-east-1.amazonaws.com/Splunk.License /data/gmnts/splunk/etc/
-  sudo -u splunk /data/gmnts/splunk/bin/splunk add licenses /data/gmnts/splunk/etc/Splunk.License
-  sudo -u splunk service splunk restart
-  EOF
+  user_data = data.template_file.splunk_l_server_init.rendered
   //  provisioner "file" {
   //    content = data.aws_s3_bucket_object.splunk_license_file.body
   //    destination = var.splunk_license_file_path
