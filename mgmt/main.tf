@@ -111,7 +111,7 @@ resource "aws_vpc_endpoint_route_table_association" "splunk_pvt_s3" {
 }
 
 data "template_file" "splunk_l_server_init" {
-  template = file("./init_license_server")
+  template = file("${path.module}/init_license_server")
   vars = {
     msg = "starting license server provisioning",
     splunk_license_bucket = var.splunk_license_bucket,
