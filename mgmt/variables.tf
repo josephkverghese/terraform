@@ -30,3 +30,4 @@ variable "splunk_license_master_key" {}
 variable "ec2_user" {}
 variable "bastion_user" {}
 variable "bastion_key" {}
+variable "splunk_admin_pass" {}

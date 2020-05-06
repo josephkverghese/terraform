@@ -115,7 +115,8 @@ data "template_file" "splunk_l_server_init" {
   vars = {
     msg = "starting license server provisioning",
     splunk_license_bucket = var.splunk_license_bucket,
-    splunk_license_file = var.splunk_license_file
+    splunk_license_file = var.splunk_license_file,
+    splunk_admin_pass = var.splunk_admin_pass
   }
 }
 

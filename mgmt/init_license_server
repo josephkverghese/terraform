@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/bash -xe
 echo "${msg}"
 sudo -u splunk /usr/local/bin/aws s3 cp s3://${splunk_license_bucket}/${splunk_license_file} /data/gmnts/splunk/etc/
 sudo -u splunk wget https://gtos-gmnts-splunk-license.s3.us-east-1.amazonaws.com/Splunk.License /data/gmnts/splunk/etc/
-sudo -u splunk /data/gmnts/splunk/bin/splunk add licenses /data/gmnts/splunk/etc/Splunk.License
+sudo -u splunk /data/gmnts/splunk/bin/splunk add licenses /data/gmnts/splunk/etc/Splunk.License -auth admin:${splunk_admin_pass}
 sudo -u splunk service splunk restart
