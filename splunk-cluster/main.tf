@@ -312,94 +312,97 @@ resource "aws_autoscaling_group" "splunk_shc" {
   lifecycle {
     create_before_destroy = true
   }
-  tags = {
-    Name = "${var.project_name}-splunk-sh-${[count.index]}"
-  }
+
+  tag {
+    key = "Name"
+    value = "${var.project_name}-splunk-sh-${[count.index]}"
+    propagate_at_launch = true
+}
 }
 
 # ALB
 
 #public splunk alb security group
 resource "aws_security_group" "splunk_sg_alb" {
-  count = var.enable_splunk_shc ? 1 : 0
-  name = "gtos_public_splunk_sg_alb"
-  description = "Used for access to public splunk alb"
-  vpc_id = var.vpc_id
+count = var.enable_splunk_shc ? 1 : 0
+name = "gtos_public_splunk_sg_alb"
+description = "Used for access to public splunk alb"
+vpc_id = var.vpc_id
 
-  #splunk-web
-  ingress {
-    from_port = var.splunk_web_port
-    to_port = var.splunk_web_port
-    protocol = "tcp"
-    cidr_blocks = [
-      var.accessip]
-  }
+#splunk-web
+ingress {
+from_port = var.splunk_web_port
+to_port = var.splunk_web_port
+protocol = "tcp"
+cidr_blocks = [
+var.accessip]
+}
 
-  egress {
-    from_port = var.splunk_web_port
-    to_port = var.splunk_web_port
-    protocol = "tcp"
-    cidr_blocks = [
-      var.subnetACIDR,
-      var.subnetBCIDR]
-  }
+egress {
+from_port = var.splunk_web_port
+to_port = var.splunk_web_port
+protocol = "tcp"
+cidr_blocks = [
+var.subnetACIDR,
+var.subnetBCIDR]
+}
 }
 
 resource "aws_alb" "splunk_shc_alb" {
-  count = var.enable_splunk_shc ? 1 : 0
-  name = var.splunk_shc_alb
-  internal = false
-  load_balancer_type = "application"
-  security_groups = [
-    aws_security_group.splunk_sg_alb.0.id]
-  subnets = [
-    var.subnetAid,
-    var.subnetBid]
-  //  enable_deletion_protection = true
+count = var.enable_splunk_shc ? 1 : 0
+name = var.splunk_shc_alb
+internal = false
+load_balancer_type = "application"
+security_groups = [
+aws_security_group.splunk_sg_alb.0.id]
+subnets = [
+var.subnetAid,
+var.subnetBid]
+//  enable_deletion_protection = true
 
-  tags = {
-    Environment = "production"
-  }
+tags = {
+Environment = "production"
+}
 }
 
 resource "aws_alb_listener" "alb_listener" {
-  count = var.enable_splunk_shc ? 1 : 0
-  load_balancer_arn = aws_alb.splunk_shc_alb.0.arn
-  port = var.splunk_web_port
-  protocol = var.alb_listener_protocol
+count = var.enable_splunk_shc ? 1 : 0
+load_balancer_arn = aws_alb.splunk_shc_alb.0.arn
+port = var.splunk_web_port
+protocol = var.alb_listener_protocol
 
-  default_action {
-    target_group_arn = aws_alb_target_group.splunk_shs.0.arn
-    type = "forward"
-  }
+default_action {
+target_group_arn = aws_alb_target_group.splunk_shs.0.arn
+type = "forward"
+}
 }
 
 
 resource "aws_alb_target_group" "splunk_shs" {
-  count = var.enable_splunk_shc ? 1 : 0
-  name = "shc-target-group"
-  port = var.splunk_web_port
-  protocol = "HTTP"
-  vpc_id = var.vpc_id
-  stickiness {
-    type = "lb_cookie"
-    cookie_duration = 1800
-    enabled = true
-  }
-  health_check {
-    healthy_threshold = 3
-    unhealthy_threshold = 10
-    timeout = 5
-    interval = 10
-    path = "/"
-    port = var.splunk_web_port
-  }
+count = var.enable_splunk_shc ? 1 : 0
+name = "shc-target-group"
+port = var.splunk_web_port
+protocol = "HTTP"
+vpc_id = var.vpc_id
+stickiness {
+type = "lb_cookie"
+cookie_duration = 1800
+enabled = true
+}
+health_check {
+healthy_threshold = 3
+unhealthy_threshold = 10
+timeout = 5
+interval = 10
+path = "/"
+port = var.splunk_web_port
+}
 
 }
 
 #Autoscaling Attachment
 resource "aws_autoscaling_attachment" "splunk_shc_target" {
-  count = var.enable_splunk_shc ? 1 : 0
-  alb_target_group_arn = aws_alb_target_group.splunk_shs.0.arn
-  autoscaling_group_name = aws_autoscaling_group.splunk_shc.0.id
+count = var.enable_splunk_shc ? 1 : 0
+alb_target_group_arn = aws_alb_target_group.splunk_shs.0.arn
+autoscaling_group_name = aws_autoscaling_group.splunk_shc.0.id
 }
