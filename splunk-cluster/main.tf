@@ -314,7 +314,7 @@ resource "aws_autoscaling_group" "splunk_shc" {
   }
 
   tags = [
-    list(map("key", "Name", "value", "splunk-sh", "propagate_at_launch", true))]
+    map("key", "Name", "value", "splunk-sh", "propagate_at_launch", true)]
 
 }
 
