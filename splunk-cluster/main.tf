@@ -354,8 +354,8 @@ resource "aws_alb" "splunk_shc_alb" {
   security_groups = [
     aws_security_group.splunk_sg_alb.0.id]
   subnets = [
-    var.subnetAid,
-    var.subnetBid]
+    var.subnetCid,
+    var.subnetDid]
   //  enable_deletion_protection = true
 
   tags = {

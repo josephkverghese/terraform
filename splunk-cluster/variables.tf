@@ -2,6 +2,10 @@ variable "subnetAid" {}
 variable "subnetBid" {}
 variable "subnetACIDR" {}
 variable "subnetBCIDR" {}
+variable "subnetCid" {}
+variable "subnetDid" {}
+variable "subnetCCIDR" {}
+variable "subnetDCIDR" {}
 variable "splunk-ami" {}
 variable "splunk_instance_type" {}
 variable "splunk_web_port" {}
