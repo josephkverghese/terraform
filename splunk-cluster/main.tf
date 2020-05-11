@@ -237,17 +237,29 @@ data "template_cloudinit_config" "shc_cloud_init" {
   }
 }
 
+#security group for all splunk shc nodes
+#allows access from alb to splunk web port,splunk mgmt port
+#allows ssh from the bastion host subnet
 resource "aws_security_group" "splunk_sg_shc" {
   count = var.enable_splunk_shc ? 1 : 0
-  name = "gtos_public_splunk_sg_shc"
+  name = "gtos_splunk_sg_shc"
   description = "Used for access to splunk shc from alb"
   vpc_id = var.vpc_id
 
   #splunk-web
-
   ingress {
     from_port = var.splunk_web_port
     to_port = var.splunk_web_port
+    protocol = "tcp"
+    security_groups = [
+      aws_security_group.splunk_sg_alb.0.id]
+  }
+
+
+  #splunk-mgmt
+  ingress {
+    from_port = var.splunk_mgmt_port
+    to_port = var.splunk_mgmt_port
     protocol = "tcp"
     security_groups = [
       aws_security_group.splunk_sg_alb.0.id]
