@@ -64,7 +64,7 @@ resource "aws_iam_policy" "splunk_s3" {
 resource "aws_iam_role" "splunk_ec2_role" {
   depends_on = [
     aws_iam_policy.splunk_s3]
-  name = "splunk_ec2_role"
+  name = "splunk_ec2_role-${var.project_name}"
   path = "/"
   # who can assume this role
   assume_role_policy = data.aws_iam_policy_document.splunk-instance-assume-role-policy.json
@@ -84,7 +84,7 @@ resource "aws_iam_role_policy_attachment" "splunk_ec2_attach2" {
 
 #create the instance profile with the above splunk ec2 role
 resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "iam_instance_profile"
+  name = "iam_instance_profile-${var.project_name}"
   role = aws_iam_role.splunk_ec2_role.id
 }
 
