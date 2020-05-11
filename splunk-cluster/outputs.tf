@@ -19,5 +19,5 @@ output "splunk_ec2_instance_role"{
 }
 
 output "splunk_shc_alb" {
-  value = aws_alb.splunk_shc_alb.dns_name
+  value = aws_alb.splunk_shc_alb.0.dns_name
 }
