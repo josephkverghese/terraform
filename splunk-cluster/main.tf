@@ -291,6 +291,9 @@ resource "aws_launch_configuration" "splunk_sh" {
     volume_type = "standard"
     volume_size = var.splunk_shc_root_volume_size
   }
+  tags = {
+    Name = "${var.project_name}-splunk-sh"
+  }
 }
 
 resource "aws_autoscaling_group" "splunk_shc" {
@@ -311,6 +314,9 @@ resource "aws_autoscaling_group" "splunk_shc" {
   # Required to redeploy without an outage.
   lifecycle {
     create_before_destroy = true
+  }
+  tags = {
+    Name = "${var.project_name}-splunk-sh-${[count.index]}"
   }
 }
 
