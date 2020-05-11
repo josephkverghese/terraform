@@ -162,6 +162,8 @@ data "template_file" "deployer_init" {
     license_master_hostname = var.license_server_hostname
     splunk_mgmt_port = var.splunk_mgmt_port
     splunkadminpass = var.splunkadminpass
+    shclusterkey = var.project_name
+    shclusterlabel = var.project_name
   }
 }
 
@@ -208,13 +210,13 @@ data "template_file" "shc_init" {
 
   vars = {
     license_master_hostname = var.license_server_hostname
-    deployer_ip=aws_instance.splunk_deployer.0.private_ip
-    shclusterlabel=var.project_name
-    shclusterkey=var.shclusterkey
+    deployer_ip = aws_instance.splunk_deployer.0.private_ip
+    shclusterlabel = var.project_name
+    shclusterkey = var.shclusterkey
     splunkmgmt = var.splunk_mgmt_port
     splunkadminpass = var.splunkadminpass
-    splunkshcrepfact=var.splunkshcrepfact
-    splunkshcrepport=var.splunkshcrepport
+    splunkshcrepfact = var.splunkshcrepfact
+    splunkshcrepport = var.splunkshcrepport
   }
 }
 
