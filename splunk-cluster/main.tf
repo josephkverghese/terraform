@@ -55,7 +55,7 @@ resource "aws_cloudwatch_log_group" "log_group" {
 
 
 resource "aws_iam_role" "splunk_ec2_role" {
-  name = "splunk_ec2_role"
+  name = "splunk_ec2_role-${var.project_name}"
   path = "/"
   # who can assume this role
   assume_role_policy = <<EOF
