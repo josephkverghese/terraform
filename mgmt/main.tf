@@ -68,6 +68,7 @@ resource "aws_iam_role" "splunk_ec2_role" {
   path = "/"
   # who can assume this role
   assume_role_policy = data.aws_iam_policy_document.splunk-instance-assume-role-policy.json
+  force_detach_policies = true
 }
 
 #attach an additional policy to the splunk ec2 iam role
