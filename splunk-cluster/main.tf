@@ -127,24 +127,42 @@ resource "aws_security_group" "splunk_sg_single_node" {
   description = "security group to allow access to public single node splunk instance"
   vpc_id = var.vpc_id
 
-  #SSH
+  #splunk-web
+  ingress {
+    from_port = var.splunk_web_port
+    to_port = var.splunk_web_port
+    protocol = "tcp"
+    security_groups = [
+      aws_security_group.splunk_sg_alb.0.id]
+    cidr_blocks = [
+      var.subnetACIDR,
+      var.subnetBCIDR,
+      var.subnetCCIDR,
+      var.subnetDCIDR]
+  }
 
+
+  #splunk-mgmt
+  ingress {
+    from_port = var.splunk_mgmt_port
+    to_port = var.splunk_mgmt_port
+    protocol = "tcp"
+    security_groups = [
+      aws_security_group.splunk_sg_alb.0.id]
+    cidr_blocks = [
+      var.subnetACIDR,
+      var.subnetBCIDR,
+      var.subnetCCIDR,
+      var.subnetDCIDR]
+  }
+
+  #SSH
   ingress {
     from_port = 22
     to_port = 22
     protocol = "tcp"
     cidr_blocks = [
-      var.accessip]
-  }
-
-  #splunk-web
-
-  ingress {
-    from_port = var.splunk_web_port
-    to_port = var.splunk_web_port
-    protocol = "tcp"
-    cidr_blocks = [
-      var.accessip]
+      var.subnetCCIDR]
   }
 
 }
@@ -253,6 +271,11 @@ resource "aws_security_group" "splunk_sg_shc" {
     protocol = "tcp"
     security_groups = [
       aws_security_group.splunk_sg_alb.0.id]
+    cidr_blocks = [
+      var.subnetACIDR,
+      var.subnetBCIDR,
+      var.subnetCCIDR,
+      var.subnetDCIDR]
   }
 
 
@@ -263,6 +286,11 @@ resource "aws_security_group" "splunk_sg_shc" {
     protocol = "tcp"
     security_groups = [
       aws_security_group.splunk_sg_alb.0.id]
+    cidr_blocks = [
+      var.subnetACIDR,
+      var.subnetBCIDR,
+      var.subnetCCIDR,
+      var.subnetDCIDR]
   }
 
   #SSH
