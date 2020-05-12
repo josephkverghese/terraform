@@ -221,8 +221,8 @@ data "template_file" "shc_init" {
 }
 
 data "template_cloudinit_config" "shc_cloud_init" {
-  gzip = true
-  base64_encode = true
+  gzip = false
+  base64_encode = false
 
   # cloud-config configuration file for cloudwatch.
   part {
