@@ -236,6 +236,23 @@ resource "aws_security_group" "splunk_sg_license_server" {
       var.subnetDCIDR]
   }
 
+  #rest call to s3 from awscli
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = [
+      var.subnetCCIDR]
+  }
+
+  ingress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = [
+      var.subnetCCIDR]
+  }
+
 }
 
 # Request a spot instance - bastion host
