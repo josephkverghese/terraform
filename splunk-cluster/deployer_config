@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 sudo -u splunk /data/gmnts/splunk/bin/splunk edit licenser-localslave -master_uri 'https://${license_master_hostname}:${splunk_mgmt_port}' -auth admin:${splunkadminpass}
 sudo -u splunk echo -e "[general]\nserverName = "$(curl http://169.254.169.254/latest/meta-data/public-hostname)"-deployer" >> /data/gmnts/splunk/etc/system/local/server.conf
 sudo -u splunk echo -e  "[shclustering]\npass4SymmKey = ${shclusterkey}\nshcluster_label = ${shclusterlabel}" >> /data/gmnts/splunk/etc/apps/gmnts/local/server.conf

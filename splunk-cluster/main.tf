@@ -168,8 +168,8 @@ data "template_file" "deployer_init" {
 }
 
 data "template_cloudinit_config" "deployer_cloud_init" {
-  gzip = true
-  base64_encode = true
+  gzip = false
+  base64_encode = false
 
   # cloud-config configuration file for cloudwatch.
   part {
