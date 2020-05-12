@@ -177,31 +177,63 @@ resource "aws_security_group" "splunk_sg_license_server" {
       var.subnetACIDR]
   }
 
-  #splunk-mgmt
-  ingress {
-    from_port = var.splunk_mgmt_port
-    to_port = var.splunk_mgmt_port
-    protocol = "tcp"
-    cidr_blocks = [
-      var.subnetCCIDR,
-      var.subnetDCIDR]
-  }
   #splunk-web
   ingress {
     from_port = var.splunk_web_port
     to_port = var.splunk_web_port
     protocol = "tcp"
     cidr_blocks = [
-      var.subnetACIDR
-    ]
+      var.subnetACIDR,
+      var.subnetBCIDR,
+      var.subnetCCIDR,
+      var.subnetDCIDR]
   }
 
-  egress {
-    from_port = 443
-    to_port = 443
+
+  #splunk-mgmt
+  ingress {
+    from_port = var.splunk_mgmt_port
+    to_port = var.splunk_mgmt_port
     protocol = "tcp"
     cidr_blocks = [
-      "0.0.0.0/0"]
+      var.subnetACIDR,
+      var.subnetBCIDR,
+      var.subnetCCIDR,
+      var.subnetDCIDR]
+  }
+
+  #SSH
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = [
+      var.subnetCCIDR]
+  }
+
+  #splunk-web
+  egress {
+    from_port = var.splunk_web_port
+    to_port = var.splunk_web_port
+    protocol = "tcp"
+    cidr_blocks = [
+      var.subnetACIDR,
+      var.subnetBCIDR,
+      var.subnetCCIDR,
+      var.subnetDCIDR]
+  }
+
+
+  #splunk-mgmt
+  egress {
+    from_port = var.splunk_mgmt_port
+    to_port = var.splunk_mgmt_port
+    protocol = "tcp"
+    cidr_blocks = [
+      var.subnetACIDR,
+      var.subnetBCIDR,
+      var.subnetCCIDR,
+      var.subnetDCIDR]
   }
 
 }
