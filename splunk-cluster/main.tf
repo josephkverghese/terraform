@@ -168,17 +168,17 @@ data "template_file" "deployer_init" {
 }
 
 data "template_cloudinit_config" "deployer_cloud_init" {
-  gzip = false
-  base64_encode = false
+  gzip = true
+  base64_encode = true
 
   # cloud-config configuration file for cloudwatch.
   part {
-    filename = "init.cfg"
+    filename = "cloud_watch.cfg"
     content_type = "text/cloud-config"
     content = data.template_file.cloud_watch.rendered
   }
   part {
-    filename = "init.cfg"
+    filename = "deployer.cfg"
     content_type = "text/cloud-config"
     content = data.template_file.deployer_init.rendered
   }
@@ -221,19 +221,19 @@ data "template_file" "shc_init" {
 }
 
 data "template_cloudinit_config" "shc_cloud_init" {
-  gzip = false
-  base64_encode = false
+  gzip = true
+  base64_encode = true
 
   # cloud-config configuration file for cloudwatch.
   part {
-    filename = "init.cfg"
+    filename = "cloud_watch.cfg"
     content_type = "text/cloud-config"
     content = data.template_file.cloud_watch.rendered
   }
   part {
-    filename = "init.cfg"
+    filename = "shc.cfg"
     content_type = "text/cloud-config"
-    content = data.template_file.deployer_init.rendered
+    content = data.template_file.shc_init.rendered
   }
 }
 
