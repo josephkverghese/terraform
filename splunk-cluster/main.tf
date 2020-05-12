@@ -308,10 +308,39 @@ resource "aws_security_group" "splunk_sg_shc" {
   }
 
 
-  #splunk-mgmt
+  #splunk-mgmt,rep
   ingress {
     from_port = var.splunk_mgmt_port
-    to_port = var.splunk_mgmt_port
+    to_port = var.splunkshcrepport
+    protocol = "tcp"
+    security_groups = [
+      aws_security_group.splunk_sg_alb.0.id]
+    cidr_blocks = [
+      var.subnetACIDR,
+      var.subnetBCIDR,
+      var.subnetCCIDR,
+      var.subnetDCIDR]
+  }
+
+  #splunk-web
+  egress {
+    from_port = var.splunk_web_port
+    to_port = var.splunk_web_port
+    protocol = "tcp"
+    security_groups = [
+      aws_security_group.splunk_sg_alb.0.id]
+    cidr_blocks = [
+      var.subnetACIDR,
+      var.subnetBCIDR,
+      var.subnetCCIDR,
+      var.subnetDCIDR]
+  }
+
+
+  #splunk-mgmt,rep
+  egress {
+    from_port = var.splunk_mgmt_port
+    to_port = var.splunkshcrepport
     protocol = "tcp"
     security_groups = [
       aws_security_group.splunk_sg_alb.0.id]
