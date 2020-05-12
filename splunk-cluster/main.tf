@@ -142,10 +142,10 @@ resource "aws_security_group" "splunk_sg_single_node" {
   }
 
 
-  #splunk-mgmt
+  #splunk-mgmt,rep
   ingress {
     from_port = var.splunk_mgmt_port
-    to_port = var.splunk_mgmt_port
+    to_port = var.splunkshcrepport
     protocol = "tcp"
     security_groups = [
       aws_security_group.splunk_sg_alb.0.id]
@@ -180,10 +180,10 @@ resource "aws_security_group" "splunk_sg_single_node" {
   }
 
 
-  #splunk-mgmt
+  #splunk-mgmt,rep
   egress {
     from_port = var.splunk_mgmt_port
-    to_port = var.splunk_mgmt_port
+    to_port = var.splunkshcrepport
     protocol = "tcp"
     security_groups = [
       aws_security_group.splunk_sg_alb.0.id]
