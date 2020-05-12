@@ -237,20 +237,21 @@ resource "aws_security_group" "splunk_sg_license_server" {
   }
 
   #rest call to s3 from awscli
-  ingress {
+  egress {
     from_port = 443
     to_port = 443
     protocol = "tcp"
-    cidr_blocks = [
-      var.subnetCCIDR]
+    prefix_list_ids = [
+      aws_vpc_endpoint.s3.prefix_list_id]
   }
 
-  ingress {
+  egress {
     from_port = 80
     to_port = 80
     protocol = "tcp"
-    cidr_blocks = [
-      var.subnetCCIDR]
+    prefix_list_ids = [
+      aws_vpc_endpoint.s3.prefix_list_id]
+
   }
 
 }
