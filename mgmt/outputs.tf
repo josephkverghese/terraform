@@ -13,3 +13,7 @@ output "bastion_public_ip" {
 output "WinUser_public_ip" {
   value = aws_spot_instance_request.bastionH_WindowsUser.1.public_ip
 }
+
+output "splunk_license_server" {
+  value = aws_instance.splunk_license_server.private_dns
+}
