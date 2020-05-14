@@ -118,7 +118,6 @@ resource "aws_route_table_association" "gtos_private_rt_assoc" {
 #add a nat instance to the module
 resource aws_instance "nat_instance" {
   count = var.enable_nat_instance ? 1 : 0
-  name = "nat-instance"
   ami = "ami-00a9d4a05375b2763"
   instance_type = "t2.micro"
   source_dest_check = false
