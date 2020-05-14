@@ -395,9 +395,6 @@ resource "aws_launch_configuration" "splunk_sh" {
   key_name = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
   user_data = data.template_cloudinit_config.shc_cloud_init.rendered
-  lifecycle {
-    create_before_destroy = false
-  }
   ebs_block_device {
     device_name = "/dev/sdf"
     volume_type = "standard"
