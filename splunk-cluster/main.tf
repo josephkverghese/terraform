@@ -88,6 +88,22 @@ resource "aws_iam_policy_attachment" "splunk_ec2_attach" {
     aws_iam_role.splunk_ec2_role.id]
 }
 
+#attach the policy to the iam role
+resource "aws_iam_policy_attachment" "splunk_ec2_attach1" {
+  name = "splunk_ec2_attach"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
+  roles = [
+    aws_iam_role.splunk_ec2_role.id]
+}
+
+#attach the policy to the iam role
+resource "aws_iam_policy_attachment" "splunk_ec2_attach2" {
+  name = "splunk_ec2_attach"
+  policy_arn = "arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess"
+  roles = [
+    aws_iam_role.splunk_ec2_role.id]
+}
+
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "iam_instance_profile"
   role = aws_iam_role.splunk_ec2_role.id
@@ -264,6 +280,8 @@ data "template_file" "shc_init" {
     splunkadminpass = var.splunkadminpass
     splunkshcrepfact = var.splunkshcrepfact
     splunkshcrepport = var.splunkshcrepport
+    splunkshcasgname = "Splunk-SHC-asg-${var.project_name}"
+    shcmemberindex = var.shcmemberindex_captain
   }
 }
 
