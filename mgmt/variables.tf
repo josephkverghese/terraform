@@ -29,5 +29,5 @@ variable "gtos_private_route_table_id" {}
 variable "splunk_license_master_key" {}
 variable "ec2_user" {}
 variable "bastion_user" {}
-variable "key_file" {}
+variable "bastion_key" {}
 variable "splunk_admin_pass" {}
