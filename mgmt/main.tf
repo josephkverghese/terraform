@@ -258,7 +258,7 @@ resource "aws_security_group" "splunk_sg_license_server" {
 
 # Request a spot instance - bastion host
 resource "aws_spot_instance_request" "bastionH_WindowsUser" {
-  count = 2
+  count = 1
   ami = var.ec2_ami[count.index]
   instance_type = var.bastion_instance_type
   spot_price = var.spot_price
