@@ -17,3 +17,5 @@ variable "aws_region" {
 variable "user_cidr" {}
 
 variable "project_name" {}
+
+variable "enable_nat_instance" {}
