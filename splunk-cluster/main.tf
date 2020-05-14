@@ -368,7 +368,7 @@ resource "aws_launch_configuration" "splunk_sh" {
   # existing resource and create a replacement.
   # We're only setting the name_prefix here,
   # Terraform will add a random string at the end to keep it unique.
-  name_prefix = "splunk-sh-"
+  name = "Splunk-SHC-launch-conf-${var.project_name}"
   count = var.enable_splunk_shc ? 1 : 0
   image_id = var.splunk-ami
   instance_type = var.splunk_instance_type
@@ -396,7 +396,7 @@ resource "aws_autoscaling_group" "splunk_shc" {
   # This will reset the desired capacity if it was changed due to
   # autoscaling events.
   count = var.enable_splunk_shc ? 1 : 0
-  name = "${aws_launch_configuration.splunk_sh.0.name}-asg"
+  name = "Splunk-SHC-asg-${var.project_name}"
   min_size = 3
   desired_capacity = 3
   max_size = 3
@@ -411,8 +411,14 @@ resource "aws_autoscaling_group" "splunk_shc" {
     create_before_destroy = true
   }
 
-  tags = [
-    map("key", "Name", "value", "splunk-sh", "propagate_at_launch", true)]
+  tag {
+    key = "Name"
+    propagate_at_launch = true
+    value = "Splunk-SHC-asg-${var.project_name}"
+  }
+  //
+  //  tags = [
+  //    map("key", "Name", "value", "splunk-sh", "propagate_at_launch", true)]
 
 }
 
