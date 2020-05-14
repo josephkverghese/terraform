@@ -112,7 +112,7 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 #common cloud init script for cloudwatch
 #customize log group name as per project and start agent
 data template_file "cloud_watch" {
-  template = file("${path.module}/cloudwatch_config")
+  template = file("${path.module}/cloudwatch_config.sh")
   vars = {
     cw_log_group = var.project_name
   }
@@ -219,7 +219,7 @@ resource "aws_security_group" "splunk_sg_single_node" {
 
 #init logic for deployer
 data "template_file" "deployer_init" {
-  template = file("${path.module}/deployer_config")
+  template = file("${path.module}/deployer_config.sh")
 
   vars = {
     license_master_hostname = var.license_server_hostname
@@ -269,7 +269,7 @@ resource "aws_instance" "splunk_deployer" {
 #SHC
 
 data "template_file" "shc_init" {
-  template = file("${path.module}/shc_config")
+  template = file("${path.module}/shc_config.sh")
 
   vars = {
     license_master_hostname = var.license_server_hostname
