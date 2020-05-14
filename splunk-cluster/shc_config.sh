@@ -20,5 +20,5 @@ if (( $(curl http://169.254.169.254/latest/meta-data/ami-launch-index)==${shcmem
     hosts='"'$${hosts:0:-1}'"'
     echo $hosts
     sudo -u splunk /data/gmnts/splunk/bin/splunk bootstrap shcluster-captain -servers_list $hosts -auth admin:${splunkadminpass}
-if
+fi
 service splunk restart
