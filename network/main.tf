@@ -129,3 +129,47 @@ resource "aws_eip" "nat_eip" {
   instance = aws_instance.nat_instance.0.id
   vpc = true
 }
+
+resource "aws_security_group" "nat-sg" {
+  count = var.enable_nat_instance? 1 : 0
+  name = "gtos_nat_sg"
+  description = "Used for access to public splunk alb"
+  vpc_id = aws_vpc.gtosvpc.id
+
+  ingress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = [
+      aws_subnet.gtos_subnet_private.0.cidr_block,
+      aws_subnet.gtos_subnet_private.1.cidr_block]
+  }
+
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = [
+      aws_subnet.gtos_subnet_private.0.cidr_block,
+      aws_subnet.gtos_subnet_private.1.cidr_block]
+  }
+
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = [
+      "0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = [
+      "0.0.0.0/0"]
+  }
+
+
+}
+}

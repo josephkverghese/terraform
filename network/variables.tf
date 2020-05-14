@@ -18,4 +18,6 @@ variable "user_cidr" {}
 
 variable "project_name" {}
 
-variable "enable_nat_instance" {}
+variable "enable_nat_instance" {
+  type = bool
+}
