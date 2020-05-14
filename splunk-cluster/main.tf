@@ -386,7 +386,7 @@ resource "aws_launch_configuration" "splunk_sh" {
   # existing resource and create a replacement.
   # We're only setting the name_prefix here,
   # Terraform will add a random string at the end to keep it unique.
-  name = "Splunk-SHC-launch-conf-${var.project_name}"
+  name_prefix = "Splunk-SHC-launch-conf-${var.project_name}"
   count = var.enable_splunk_shc ? 1 : 0
   image_id = var.splunk-ami
   instance_type = var.splunk_instance_type
