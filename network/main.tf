@@ -46,6 +46,8 @@ resource "aws_route_table" "gtos_route_table_public" {
 
 # private route table
 resource "aws_route_table" "gtos_route_table_private" {
+  depends_on = [
+    aws_instance.nat_instance]
   vpc_id = aws_vpc.gtosvpc.id
   route {
     cidr_block = "0.0.0.0/0"
@@ -171,5 +173,4 @@ resource "aws_security_group" "nat-sg" {
   }
 
 
-}
 }
