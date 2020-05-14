@@ -125,7 +125,7 @@ resource aws_instance "nat_instance" {
   source_dest_check = false
   subnet_id = aws_subnet.gtos_subnet_public.0.id
   vpc_security_group_ids = [aws_security_group.nat-sg.0.id]
-tags {
+tags  = {
   Name = "NAT-server"
 }
 }
