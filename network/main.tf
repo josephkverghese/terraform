@@ -124,7 +124,7 @@ resource aws_instance "nat_instance" {
   instance_type = "t2.micro"
   source_dest_check = false
   subnet_id = aws_subnet.gtos_subnet_public.0.id
-  vpc_security_group_ids = [aws_security_group.nat-sg.id]
+  vpc_security_group_ids = [aws_security_group.nat-sg.0.id]
 }
 
 resource "aws_eip" "nat_eip" {
