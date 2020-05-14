@@ -51,7 +51,7 @@ resource "aws_route_table" "gtos_route_table_private" {
   vpc_id = aws_vpc.gtosvpc.id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_instance.nat_instance.0.id
+    instance_id = aws_instance.nat_instance.0.id
   }
   tags = {
     Name = "gtos_private_rt"
