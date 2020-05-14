@@ -271,10 +271,8 @@ resource "aws_spot_instance_request" "bastionH_WindowsUser" {
     [
       aws_security_group.bastionH_sg.id,
       aws_security_group.WinUser_sg.id][count.index]]
-  tag {
-    key = "Name"
-    propagate_at_launch = true
-    value = "${var.bastion_windows_name[count.index]}"
+  tags = {
+    Name = "${var.bastion_windows_name[count.index]}"
   }
 }
 
