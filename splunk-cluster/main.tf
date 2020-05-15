@@ -308,7 +308,7 @@ data "template_cloudinit_config" "shc_cloud_init" {
 resource "aws_security_group" "splunk_sg_shc" {
   count = var.enable_splunk_shc ? 1 : 0
   name = "gtos_splunk_sg_shc"
-  description = "Used for access to splunk shc from alb"
+  description = "Used by members for splunk shc"
   vpc_id = var.vpc_id
 
   #splunk-web
@@ -359,6 +359,32 @@ resource "aws_security_group" "splunk_sg_shc" {
   egress {
     from_port = var.splunk_mgmt_port
     to_port = var.splunkshcrepport
+    protocol = "tcp"
+    security_groups = [
+      aws_security_group.splunk_sg_alb.0.id]
+    cidr_blocks = [
+      var.subnetACIDR,
+      var.subnetBCIDR,
+      var.subnetCCIDR,
+      var.subnetDCIDR]
+  }
+
+  egress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    security_groups = [
+      aws_security_group.splunk_sg_alb.0.id]
+    cidr_blocks = [
+      var.subnetACIDR,
+      var.subnetBCIDR,
+      var.subnetCCIDR,
+      var.subnetDCIDR]
+  }
+
+  egress {
+    from_port = 80
+    to_port = 80
     protocol = "tcp"
     security_groups = [
       aws_security_group.splunk_sg_alb.0.id]
