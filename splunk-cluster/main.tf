@@ -236,13 +236,13 @@ data "template_cloudinit_config" "deployer_cloud_init" {
 
   # cloud-config configuration file for cloudwatch.
   part {
-    filename = "cloud_watch.cfg"
-    content_type = "text/cloud-config"
+    filename = "cloud_watch.sh"
+    content_type = "text/x-shellscript"
     content = data.template_file.cloud_watch.rendered
   }
   part {
-    filename = "deployer.cfg"
-    content_type = "text/cloud-config"
+    filename = "deployer.sh"
+    content_type = "text/x-shellscript"
     content = data.template_file.deployer_init.rendered
   }
 }
@@ -291,13 +291,13 @@ data "template_cloudinit_config" "shc_cloud_init" {
 
   # cloud-config configuration file for cloudwatch.
   part {
-    filename = "cloud_watch.cfg"
-    content_type = "text/cloud-config"
+    filename = "cloud_watch.sh"
+    content_type = "text/x-shellscript"
     content = data.template_file.cloud_watch.rendered
   }
   part {
-    filename = "shc.cfg"
-    content_type = "text/cloud-config"
+    filename = "shc.sh"
+    content_type = "text/x-shellscript"
     content = data.template_file.shc_init.rendered
   }
 }
