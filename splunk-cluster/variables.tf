@@ -39,3 +39,6 @@ variable "ec2-user" {
   default = "ec2-user"
 }
 variable "shcmemberindex_captain" {}
+variable "asgindex" {
+  default = "asgindex"
+}

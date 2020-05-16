@@ -6,7 +6,9 @@ service splunk restart
 hosts=""
 splunkasg=${splunkshcasgname}
 
-if (( $(curl http://169.254.169.254/latest/meta-data/ami-launch-index)==${shcmemberindex} )); then
+if (( ${shcmemberindex}==$(aws ec2 describe-tags --region us-east-1 \
+     --filters "Name=resource-id,Values=$(curl 169.254.169.254/latest/meta-data/instance-id)" \
+               "Name=key,Values=${asgindex}" --query Tags[].Value --output text) )); then
 
     for i in $(aws ec2 describe-instances --region us-east-1 --instance-ids \
        $(aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text  \
@@ -17,8 +19,7 @@ if (( $(curl http://169.254.169.254/latest/meta-data/ami-launch-index)==${shcmem
         hosts+="https://$i:8089,"
     done
 
-    hosts='"'$${hosts:0:-1}'"'
-    echo $hosts
+    hosts=$${hosts:0:-1}
     sudo -u splunk /data/gmnts/splunk/bin/splunk bootstrap shcluster-captain -servers_list $hosts -auth admin:${splunkadminpass}
+    service splunk restart
 fi
-service splunk restart

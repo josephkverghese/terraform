@@ -282,6 +282,7 @@ data "template_file" "shc_init" {
     splunkshcrepport = var.splunkshcrepport
     splunkshcasgname = "Splunk-SHC-asg-${var.project_name}"
     shcmemberindex = var.shcmemberindex_captain
+    asgindex = var.asgindex
   }
 }
 
@@ -457,11 +458,16 @@ resource "aws_autoscaling_group" "splunk_shc" {
     propagate_at_launch = true
     value = "Splunk-SHC-asg-${var.project_name}"
   }
-  //
-  //  tags = [
-  //    map("key", "Name", "value", "splunk-sh", "propagate_at_launch", true)]
-
+  tag {
+    key = var.asgindex
+    propagate_at_launch = true
+    value = count.index
+  }
 }
+//
+//  tags = [
+//    map("key", "Name", "value", "splunk-sh", "propagate_at_launch", true)]
+
 
 # ALB
 
