@@ -451,9 +451,9 @@ resource "aws_autoscaling_group" "splunk_shc" {
   # autoscaling events.
   count = var.enable_splunk_shc ? 1 : 0
   name = "Splunk-SHC-asg-${var.project_name}"
-  min_size = 3
-  desired_capacity = 3
-  max_size = 3
+  min_size = var.shcmembercount
+  desired_capacity = var.shcmembercount
+  max_size = var.shcmembercount
   health_check_type = "EC2"
   launch_configuration = aws_launch_configuration.splunk_sh.0.name
   vpc_zone_identifier = [
