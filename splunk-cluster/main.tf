@@ -376,11 +376,7 @@ resource "aws_security_group" "splunk_sg_shc" {
     protocol = "tcp"
     security_groups = [
       aws_security_group.splunk_sg_alb.0.id]
-    cidr_blocks = [
-      var.subnetACIDR,
-      var.subnetBCIDR,
-      var.subnetCCIDR,
-      var.subnetDCIDR]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -389,11 +385,7 @@ resource "aws_security_group" "splunk_sg_shc" {
     protocol = "tcp"
     security_groups = [
       aws_security_group.splunk_sg_alb.0.id]
-    cidr_blocks = [
-      var.subnetACIDR,
-      var.subnetBCIDR,
-      var.subnetCCIDR,
-      var.subnetDCIDR]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   #SSH
