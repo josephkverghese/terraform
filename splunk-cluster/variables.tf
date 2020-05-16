@@ -44,3 +44,6 @@ variable "shcmemberindex_captain" {
 variable "asgindex" {
   default = "asgindex"
 }
+variable "shcmembercount" {}
+variable "shc_init_check_retry_count" {}
+variable "shc_init_check_retry_sleep_wait" {}

@@ -267,8 +267,21 @@ resource "aws_instance" "splunk_deployer" {
 }
 
 #SHC
+data "template_file" "set_shc_captain" {
 
+  template = file("${path.module}/set_shc_captain.sh")
+
+  vars = {
+    shclusterlabel = var.project_name
+    splunkshcasgname = "Splunk-SHC-asg-${var.project_name}"
+    shcmembercount = var.shcmembercount
+    shc_init_check_retry_count = var.shc_init_check_retry_count
+    shc_init_check_retry_sleep_wait = var.shc_init_check_retry_sleep_wait
+    splunkadminpass = var.splunkadminpass
+  }
+}
 data "template_file" "shc_init" {
+
   template = file("${path.module}/shc_config.sh")
 
   vars = {
@@ -300,6 +313,11 @@ data "template_cloudinit_config" "shc_cloud_init" {
     filename = "shc.sh"
     content_type = "text/x-shellscript"
     content = data.template_file.shc_init.rendered
+  }
+  part {
+    filename = "setcaptain.sh"
+    content_type = "text/x-shellscript"
+    content = data.template_file.set_shc_captain.rendered
   }
 }
 
@@ -376,7 +394,8 @@ resource "aws_security_group" "splunk_sg_shc" {
     protocol = "tcp"
     security_groups = [
       aws_security_group.splunk_sg_alb.0.id]
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [
+      "0.0.0.0/0"]
   }
 
   egress {
@@ -385,7 +404,8 @@ resource "aws_security_group" "splunk_sg_shc" {
     protocol = "tcp"
     security_groups = [
       aws_security_group.splunk_sg_alb.0.id]
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [
+      "0.0.0.0/0"]
   }
 
   #SSH
