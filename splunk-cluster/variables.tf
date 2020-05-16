@@ -38,7 +38,9 @@ variable "bastion_public_ip" {}
 variable "ec2-user" {
   default = "ec2-user"
 }
-variable "shcmemberindex_captain" {}
+variable "shcmemberindex_captain" {
+  default = 1
+}
 variable "asgindex" {
   default = "asgindex"
 }
