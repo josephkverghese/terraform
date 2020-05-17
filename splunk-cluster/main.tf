@@ -267,24 +267,25 @@ resource "aws_instance" "splunk_deployer" {
 }
 
 #SHC
-data "template_file" "set_shc_captain" {
-
-  template = file("${path.module}/set_shc_captain.sh")
-
-  vars = {
-    shclusterlabel = var.project_name
-    splunkshcasgname = "Splunk-SHC-asg-${var.project_name}"
-    shcmembercount = var.shcmembercount
-    shc_init_check_retry_count = var.shc_init_check_retry_count
-    shc_init_check_retry_sleep_wait = var.shc_init_check_retry_sleep_wait
-    splunkadminpass = var.splunkadminpass
-  }
-}
+//data "template_file" "set_shc_captain" {
+//
+//  template = file("${path.module}/set_shc_captain.sh")
+//
+//  vars = {
+//    shclusterlabel = var.project_name
+//    splunkshcasgname = "Splunk-SHC-asg-${var.project_name}"
+//    shcmembercount = var.shcmembercount
+//    shc_init_check_retry_count = var.shc_init_check_retry_count
+//    shc_init_check_retry_sleep_wait = var.shc_init_check_retry_sleep_wait
+//    splunkadminpass = var.splunkadminpass
+//  }
+//}
 data "template_file" "shc_init" {
 
   template = file("${path.module}/shc_config.sh")
 
   vars = {
+    shcmembercount = var.shcmembercount
     license_master_hostname = var.license_server_hostname
     deployer_ip = aws_instance.splunk_deployer.0.private_ip
     shclusterlabel = var.project_name
@@ -296,6 +297,8 @@ data "template_file" "shc_init" {
     splunkshcasgname = "Splunk-SHC-asg-${var.project_name}"
     shcmemberindex = var.shcmemberindex_captain
     asgindex = var.asgindex
+    shc_init_check_retry_count = var.shc_init_check_retry_count
+    shc_init_check_retry_sleep_wait = var.shc_init_check_retry_sleep_wait
   }
 }
 
@@ -314,11 +317,11 @@ data "template_cloudinit_config" "shc_cloud_init" {
     content_type = "text/x-shellscript"
     content = data.template_file.shc_init.rendered
   }
-  part {
-    filename = "setcaptain.sh"
-    content_type = "text/x-shellscript"
-    content = data.template_file.set_shc_captain.rendered
-  }
+//  part {
+//    filename = "setcaptain.sh"
+//    content_type = "text/x-shellscript"
+//    content = data.template_file.set_shc_captain.rendered
+//  }
 }
 
 #security group for all splunk shc nodes
