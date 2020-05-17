@@ -31,3 +31,6 @@ variable "ec2_user" {}
 variable "bastion_user" {}
 variable "bastion_key" {}
 variable "splunk_admin_pass" {}
+variable "enable_nat_instance" {
+  type = bool
+}

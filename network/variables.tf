@@ -4,11 +4,11 @@ variable "vpc_cidr" {
 }
 
 variable "public_cidrs" {
-  type = list
+  type = list(string)
 }
 
 variable "private_cidrs" {
-  type = list
+  type = list(string)
 }
 
 variable "aws_region" {
@@ -17,7 +17,3 @@ variable "aws_region" {
 variable "user_cidr" {}
 
 variable "project_name" {}
-
-variable "enable_nat_instance" {
-  type = bool
-}
