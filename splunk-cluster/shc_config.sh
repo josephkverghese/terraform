@@ -63,6 +63,7 @@ done
 if [[ "$readycount" == ${shcmembercount} ]]; then
   echo "setting shc captain...."
   shcmem=$${shcmem:0:-1}
+  service splunk restart
   sudo -u splunk /data/gmnts/splunk/bin/splunk bootstrap shcluster-captain -servers_list $shcmem -auth admin:${splunkadminpass}
   service splunk restart
 else
