@@ -231,6 +231,7 @@ data "template_file" "ixrcmaster_init" {
     splunkadminpass         = var.splunkadminpass
     ixrckey                 = var.ixrckey
     ixrclabel               = var.ixrclabel
+    ixrcmaster              = aws_instance.splunk_ixrcmaster.private_dns
   }
 }
 
