@@ -309,11 +309,10 @@ resource "aws_security_group" "WinUser_sg" {
 
   #RDP
   ingress {
-    from_port = 3389
-    to_port   = 3389
-    protocol  = "tcp"
-    cidr_blocks = [
-    var.accessip]
+    from_port   = 3389
+    to_port     = 3389
+    protocol    = "tcp"
+    cidr_blocks = var.accessip
   }
 
   egress {
