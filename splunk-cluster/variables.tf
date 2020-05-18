@@ -49,9 +49,7 @@ variable "shcmembercount" {}
 variable "shc_init_check_retry_count" {}
 variable "shc_init_check_retry_sleep_wait" {}
 variable "splunkixrcrepport" {}
-variable "splunkixrcrepfact" {}
 variable "ixrcmembercount" {}
-variable "ixrckey" {}
 variable "splunk_ixrc_volume_size" {}
 variable "splunk_ixrc_root_volume_size" {}
 variable "ixrckey" {}
