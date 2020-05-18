@@ -1,6 +1,6 @@
 #create a cloudwatch log group for this project
 resource "aws_cloudwatch_log_group" "log_group" {
-  name = var.cloudwatch_loggroup_name
+  name              = var.cloudwatch_loggroup_name
   retention_in_days = var.cloudwatch_retention
 }
 
@@ -82,26 +82,26 @@ EOF
 
 #attach the policy to the iam role
 resource "aws_iam_policy_attachment" "splunk_ec2_attach" {
-  name = "splunk_ec2_attach"
+  name       = "splunk_ec2_attach"
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
   roles = [
-    aws_iam_role.splunk_ec2_role.id]
+  aws_iam_role.splunk_ec2_role.id]
 }
 
 #attach the policy to the iam role
 resource "aws_iam_policy_attachment" "splunk_ec2_attach1" {
-  name = "splunk_ec2_attach"
+  name       = "splunk_ec2_attach"
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
   roles = [
-    aws_iam_role.splunk_ec2_role.id]
+  aws_iam_role.splunk_ec2_role.id]
 }
 
 #attach the policy to the iam role
 resource "aws_iam_policy_attachment" "splunk_ec2_attach2" {
-  name = "splunk_ec2_attach"
+  name       = "splunk_ec2_attach"
   policy_arn = "arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess"
   roles = [
-    aws_iam_role.splunk_ec2_role.id]
+  aws_iam_role.splunk_ec2_role.id]
 }
 
 resource "aws_iam_instance_profile" "ec2_profile" {
@@ -122,15 +122,15 @@ data template_file "cloud_watch" {
 
 #conditional resource. Deployed only for splunk single node
 resource "aws_instance" "splunk" {
-  count = var.enable_splunk_shc ? 0 : 1
-  ami = var.splunk-ami
+  count         = var.enable_splunk_shc ? 0 : 1
+  ami           = var.splunk-ami
   instance_type = var.splunk_instance_type
-  subnet_id = var.subnetAid
+  subnet_id     = var.subnetAid
   vpc_security_group_ids = [
-    aws_security_group.splunk_sg_single_node[0].id]
-  key_name = var.key_name
+  aws_security_group.splunk_sg_single_node[0].id]
+  key_name             = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
-  user_data = data.template_file.cloud_watch.rendered
+  user_data            = data.template_file.cloud_watch.rendered
   tags = {
     Name = var.instance_name
   }
@@ -138,76 +138,76 @@ resource "aws_instance" "splunk" {
 
 #public single node splunk instance security group
 resource "aws_security_group" "splunk_sg_single_node" {
-  count = var.enable_splunk_shc ? 0 : 1
-  name = "gtos_public_splunk_sg_single_node"
+  count       = var.enable_splunk_shc ? 0 : 1
+  name        = "gtos_public_splunk_sg_single_node"
   description = "security group to allow access to public single node splunk instance"
-  vpc_id = var.vpc_id
+  vpc_id      = var.vpc_id
 
   #splunk-web
   ingress {
     from_port = var.splunk_web_port
-    to_port = var.splunk_web_port
-    protocol = "tcp"
+    to_port   = var.splunk_web_port
+    protocol  = "tcp"
     security_groups = [
-      aws_security_group.splunk_sg_alb.0.id]
+    aws_security_group.splunk_sg_alb.0.id]
     cidr_blocks = [
       var.subnetACIDR,
       var.subnetBCIDR,
       var.subnetCCIDR,
-      var.subnetDCIDR]
+    var.subnetDCIDR]
   }
 
 
   #splunk-mgmt,rep
   ingress {
     from_port = var.splunk_mgmt_port
-    to_port = var.splunkshcrepport
-    protocol = "tcp"
+    to_port   = var.splunkshcrepport
+    protocol  = "tcp"
     security_groups = [
-      aws_security_group.splunk_sg_alb.0.id]
+    aws_security_group.splunk_sg_alb.0.id]
     cidr_blocks = [
       var.subnetACIDR,
       var.subnetBCIDR,
       var.subnetCCIDR,
-      var.subnetDCIDR]
+    var.subnetDCIDR]
   }
 
   #SSH
   ingress {
     from_port = 22
-    to_port = 22
-    protocol = "tcp"
+    to_port   = 22
+    protocol  = "tcp"
     cidr_blocks = [
-      var.subnetCCIDR]
+    var.subnetCCIDR]
   }
 
   #splunk-web
   egress {
     from_port = var.splunk_web_port
-    to_port = var.splunk_web_port
-    protocol = "tcp"
+    to_port   = var.splunk_web_port
+    protocol  = "tcp"
     security_groups = [
-      aws_security_group.splunk_sg_alb.0.id]
+    aws_security_group.splunk_sg_alb.0.id]
     cidr_blocks = [
       var.subnetACIDR,
       var.subnetBCIDR,
       var.subnetCCIDR,
-      var.subnetDCIDR]
+    var.subnetDCIDR]
   }
 
 
   #splunk-mgmt,rep
   egress {
     from_port = var.splunk_mgmt_port
-    to_port = var.splunkshcrepport
-    protocol = "tcp"
+    to_port   = var.splunkshcrepport
+    protocol  = "tcp"
     security_groups = [
-      aws_security_group.splunk_sg_alb.0.id]
+    aws_security_group.splunk_sg_alb.0.id]
     cidr_blocks = [
       var.subnetACIDR,
       var.subnetBCIDR,
       var.subnetCCIDR,
-      var.subnetDCIDR]
+    var.subnetDCIDR]
   }
 
 }
@@ -223,27 +223,27 @@ data "template_file" "deployer_init" {
 
   vars = {
     license_master_hostname = var.license_server_hostname
-    splunk_mgmt_port = var.splunk_mgmt_port
-    splunkadminpass = var.splunkadminpass
-    shclusterkey = var.project_name
-    shclusterlabel = var.project_name
+    splunk_mgmt_port        = var.splunk_mgmt_port
+    splunkadminpass         = var.splunkadminpass
+    shclusterkey            = var.project_name
+    shclusterlabel          = var.project_name
   }
 }
 
 data "template_cloudinit_config" "deployer_cloud_init" {
-  gzip = false
+  gzip          = false
   base64_encode = false
 
   # cloud-config configuration file for cloudwatch.
   part {
-    filename = "cloud_watch.sh"
+    filename     = "cloud_watch.sh"
     content_type = "text/x-shellscript"
-    content = data.template_file.cloud_watch.rendered
+    content      = data.template_file.cloud_watch.rendered
   }
   part {
-    filename = "deployer.sh"
+    filename     = "deployer.sh"
     content_type = "text/x-shellscript"
-    content = data.template_file.deployer_init.rendered
+    content      = data.template_file.deployer_init.rendered
   }
 }
 
@@ -252,15 +252,15 @@ data "template_cloudinit_config" "deployer_cloud_init" {
 # add sh clustering stanza
 # add as a slave to splunk license master
 resource "aws_instance" "splunk_deployer" {
-  count = var.enable_splunk_shc ? 1 : 0
-  ami = var.splunk-ami
+  count         = var.enable_splunk_shc ? 1 : 0
+  ami           = var.splunk-ami
   instance_type = var.splunk_instance_type
-  subnet_id = var.subnetAid
+  subnet_id     = var.subnetAid
   vpc_security_group_ids = [
-    aws_security_group.splunk_sg_shc.0.id]
-  key_name = var.key_name
+  aws_security_group.splunk_sg_shc.0.id]
+  key_name             = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
-  user_data = data.template_cloudinit_config.deployer_cloud_init.rendered
+  user_data            = data.template_cloudinit_config.deployer_cloud_init.rendered
   tags = {
     Name = "${var.project_name}-Deployer"
   }
@@ -285,139 +285,139 @@ data "template_file" "shc_init" {
   template = file("${path.module}/shc_config.sh")
 
   vars = {
-    shcmembercount = var.shcmembercount
-    license_master_hostname = var.license_server_hostname
-    deployer_ip = aws_instance.splunk_deployer.0.private_ip
-    shclusterlabel = var.project_name
-    shclusterkey = var.shclusterkey
-    splunkmgmt = var.splunk_mgmt_port
-    splunkadminpass = var.splunkadminpass
-    splunkshcrepfact = var.splunkshcrepfact
-    splunkshcrepport = var.splunkshcrepport
-    splunkshcasgname = "Splunk-SHC-asg-${var.project_name}"
-    shcmemberindex = var.shcmemberindex_captain
-    asgindex = var.asgindex
-    shc_init_check_retry_count = var.shc_init_check_retry_count
+    shcmembercount                  = var.shcmembercount
+    license_master_hostname         = var.license_server_hostname
+    deployer_ip                     = aws_instance.splunk_deployer.0.private_ip
+    shclusterlabel                  = var.project_name
+    shclusterkey                    = var.shclusterkey
+    splunkmgmt                      = var.splunk_mgmt_port
+    splunkadminpass                 = var.splunkadminpass
+    splunkshcrepfact                = var.splunkshcrepfact
+    splunkshcrepport                = var.splunkshcrepport
+    splunkshcasgname                = "Splunk-SHC-asg-${var.project_name}"
+    shcmemberindex                  = var.shcmemberindex_captain
+    asgindex                        = var.asgindex
+    shc_init_check_retry_count      = var.shc_init_check_retry_count
     shc_init_check_retry_sleep_wait = var.shc_init_check_retry_sleep_wait
   }
 }
 
 data "template_cloudinit_config" "shc_cloud_init" {
-  gzip = false
+  gzip          = false
   base64_encode = false
 
   # cloud-config configuration file for cloudwatch.
   part {
-    filename = "cloud_watch.sh"
+    filename     = "cloud_watch.sh"
     content_type = "text/x-shellscript"
-    content = data.template_file.cloud_watch.rendered
+    content      = data.template_file.cloud_watch.rendered
   }
   part {
-    filename = "shc.sh"
+    filename     = "shc.sh"
     content_type = "text/x-shellscript"
-    content = data.template_file.shc_init.rendered
+    content      = data.template_file.shc_init.rendered
   }
-//  part {
-//    filename = "setcaptain.sh"
-//    content_type = "text/x-shellscript"
-//    content = data.template_file.set_shc_captain.rendered
-//  }
+  //  part {
+  //    filename = "setcaptain.sh"
+  //    content_type = "text/x-shellscript"
+  //    content = data.template_file.set_shc_captain.rendered
+  //  }
 }
 
 #security group for all splunk shc nodes
 #allows access from alb to splunk web port,splunk mgmt port
 #allows ssh from the bastion host subnet
 resource "aws_security_group" "splunk_sg_shc" {
-  count = var.enable_splunk_shc ? 1 : 0
-  name = "gtos_splunk_sg_shc"
+  count       = var.enable_splunk_shc ? 1 : 0
+  name        = "gtos_splunk_sg_shc"
   description = "Used by members for splunk shc"
-  vpc_id = var.vpc_id
+  vpc_id      = var.vpc_id
 
   #splunk-web
   ingress {
     from_port = var.splunk_web_port
-    to_port = var.splunk_web_port
-    protocol = "tcp"
+    to_port   = var.splunk_web_port
+    protocol  = "tcp"
     security_groups = [
-      aws_security_group.splunk_sg_alb.0.id]
+    aws_security_group.splunk_sg_alb.0.id]
     cidr_blocks = [
       var.subnetACIDR,
       var.subnetBCIDR,
       var.subnetCCIDR,
-      var.subnetDCIDR]
+    var.subnetDCIDR]
   }
 
 
   #splunk-mgmt,rep
   ingress {
     from_port = var.splunk_mgmt_port
-    to_port = var.splunkshcrepport
-    protocol = "tcp"
+    to_port   = var.splunkshcrepport
+    protocol  = "tcp"
     security_groups = [
-      aws_security_group.splunk_sg_alb.0.id]
+    aws_security_group.splunk_sg_alb.0.id]
     cidr_blocks = [
       var.subnetACIDR,
       var.subnetBCIDR,
       var.subnetCCIDR,
-      var.subnetDCIDR]
+    var.subnetDCIDR]
   }
 
   #splunk-web
   egress {
     from_port = var.splunk_web_port
-    to_port = var.splunk_web_port
-    protocol = "tcp"
+    to_port   = var.splunk_web_port
+    protocol  = "tcp"
     security_groups = [
-      aws_security_group.splunk_sg_alb.0.id]
+    aws_security_group.splunk_sg_alb.0.id]
     cidr_blocks = [
       var.subnetACIDR,
       var.subnetBCIDR,
       var.subnetCCIDR,
-      var.subnetDCIDR]
+    var.subnetDCIDR]
   }
 
 
   #splunk-mgmt,rep
   egress {
     from_port = var.splunk_mgmt_port
-    to_port = var.splunkshcrepport
-    protocol = "tcp"
+    to_port   = var.splunkshcrepport
+    protocol  = "tcp"
     security_groups = [
-      aws_security_group.splunk_sg_alb.0.id]
+    aws_security_group.splunk_sg_alb.0.id]
     cidr_blocks = [
       var.subnetACIDR,
       var.subnetBCIDR,
       var.subnetCCIDR,
-      var.subnetDCIDR]
+    var.subnetDCIDR]
   }
 
   egress {
     from_port = 443
-    to_port = 443
-    protocol = "tcp"
+    to_port   = 443
+    protocol  = "tcp"
     security_groups = [
-      aws_security_group.splunk_sg_alb.0.id]
+    aws_security_group.splunk_sg_alb.0.id]
     cidr_blocks = [
-      "0.0.0.0/0"]
+    "0.0.0.0/0"]
   }
 
   egress {
     from_port = 80
-    to_port = 80
-    protocol = "tcp"
+    to_port   = 80
+    protocol  = "tcp"
     security_groups = [
-      aws_security_group.splunk_sg_alb.0.id]
+    aws_security_group.splunk_sg_alb.0.id]
     cidr_blocks = [
-      "0.0.0.0/0"]
+    "0.0.0.0/0"]
   }
 
   #SSH
   ingress {
     from_port = 22
-    to_port = 22
-    protocol = "tcp"
+    to_port   = 22
+    protocol  = "tcp"
     cidr_blocks = [
-      var.subnetCCIDR]
+    var.subnetCCIDR]
   }
 
 }
@@ -428,15 +428,15 @@ resource "aws_launch_configuration" "splunk_sh" {
   # existing resource and create a replacement.
   # We're only setting the name_prefix here,
   # Terraform will add a random string at the end to keep it unique.
-  name_prefix = "Splunk-SHC-launch-conf-${var.project_name}"
-  count = var.enable_splunk_shc ? 1 : 0
-  image_id = var.splunk-ami
+  name_prefix   = "Splunk-SHC-launch-conf-${var.project_name}"
+  count         = var.enable_splunk_shc ? 1 : 0
+  image_id      = var.splunk-ami
   instance_type = var.splunk_instance_type
   security_groups = [
-    aws_security_group.splunk_sg_shc.0.id]
-  key_name = var.key_name
+  aws_security_group.splunk_sg_shc.0.id]
+  key_name             = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
-  user_data = data.template_cloudinit_config.shc_cloud_init.rendered
+  user_data            = data.template_cloudinit_config.shc_cloud_init.rendered
   ebs_block_device {
     device_name = "/dev/sdf"
     volume_type = "standard"
@@ -452,16 +452,16 @@ resource "aws_autoscaling_group" "splunk_shc" {
   # Force a redeployment when launch configuration changes.
   # This will reset the desired capacity if it was changed due to
   # autoscaling events.
-  count = var.enable_splunk_shc ? 1 : 0
-  name = "Splunk-SHC-asg-${var.project_name}"
-  min_size = var.shcmembercount
-  desired_capacity = var.shcmembercount
-  max_size = var.shcmembercount
-  health_check_type = "EC2"
+  count                = var.enable_splunk_shc ? 1 : 0
+  name                 = "Splunk-SHC-asg-${var.project_name}"
+  min_size             = var.shcmembercount
+  desired_capacity     = var.shcmembercount
+  max_size             = var.shcmembercount
+  health_check_type    = "EC2"
   launch_configuration = aws_launch_configuration.splunk_sh.0.name
   vpc_zone_identifier = [
     var.subnetAid,
-    var.subnetBid]
+  var.subnetBid]
 
   # Required to redeploy without an outage.
   lifecycle {
@@ -469,14 +469,14 @@ resource "aws_autoscaling_group" "splunk_shc" {
   }
 
   tag {
-    key = "Name"
+    key                 = "Name"
     propagate_at_launch = true
-    value = "Splunk-SHC-asg-${var.project_name}"
+    value               = "Splunk-SHC-asg-${var.project_name}"
   }
   tag {
-    key = var.asgindex
+    key                 = var.asgindex
     propagate_at_launch = true
-    value = count.index
+    value               = count.index
   }
 }
 //
@@ -488,40 +488,39 @@ resource "aws_autoscaling_group" "splunk_shc" {
 
 #public splunk alb security group
 resource "aws_security_group" "splunk_sg_alb" {
-  count = var.enable_splunk_shc ? 1 : 0
-  name = "gtos_public_splunk_sg_alb"
+  count       = var.enable_splunk_shc ? 1 : 0
+  name        = "gtos_public_splunk_sg_alb"
   description = "Used for access to public splunk alb"
-  vpc_id = var.vpc_id
+  vpc_id      = var.vpc_id
 
   #splunk-web
   ingress {
-    from_port = var.splunk_web_port
-    to_port = var.splunk_web_port
-    protocol = "tcp"
-    cidr_blocks = [
-      var.accessip]
+    from_port   = var.splunk_web_port
+    to_port     = var.splunk_web_port
+    protocol    = "tcp"
+    cidr_blocks = var.accessip
   }
 
   egress {
     from_port = var.splunk_web_port
-    to_port = var.splunk_web_port
-    protocol = "tcp"
+    to_port   = var.splunk_web_port
+    protocol  = "tcp"
     cidr_blocks = [
       var.subnetACIDR,
-      var.subnetBCIDR]
+    var.subnetBCIDR]
   }
 }
 
 resource "aws_alb" "splunk_shc_alb" {
-  count = var.enable_splunk_shc ? 1 : 0
-  name = var.splunk_shc_alb
-  internal = false
+  count              = var.enable_splunk_shc ? 1 : 0
+  name               = var.splunk_shc_alb
+  internal           = false
   load_balancer_type = "application"
   security_groups = [
-    aws_security_group.splunk_sg_alb.0.id]
+  aws_security_group.splunk_sg_alb.0.id]
   subnets = [
     var.subnetCid,
-    var.subnetDid]
+  var.subnetDid]
   //  enable_deletion_protection = true
 
   tags = {
@@ -530,43 +529,43 @@ resource "aws_alb" "splunk_shc_alb" {
 }
 
 resource "aws_alb_listener" "alb_listener" {
-  count = var.enable_splunk_shc ? 1 : 0
+  count             = var.enable_splunk_shc ? 1 : 0
   load_balancer_arn = aws_alb.splunk_shc_alb.0.arn
-  port = var.splunk_web_port
-  protocol = var.alb_listener_protocol
+  port              = var.splunk_web_port
+  protocol          = var.alb_listener_protocol
 
   default_action {
     target_group_arn = aws_alb_target_group.splunk_shs.0.arn
-    type = "forward"
+    type             = "forward"
   }
 }
 
 
 resource "aws_alb_target_group" "splunk_shs" {
-  count = var.enable_splunk_shc ? 1 : 0
-  name = "shc-target-group"
-  port = var.splunk_web_port
+  count    = var.enable_splunk_shc ? 1 : 0
+  name     = "shc-target-group"
+  port     = var.splunk_web_port
   protocol = "HTTP"
-  vpc_id = var.vpc_id
+  vpc_id   = var.vpc_id
   stickiness {
-    type = "lb_cookie"
+    type            = "lb_cookie"
     cookie_duration = 1800
-    enabled = true
+    enabled         = true
   }
   health_check {
-    healthy_threshold = 3
+    healthy_threshold   = 3
     unhealthy_threshold = 10
-    timeout = 5
-    interval = 10
-    path = "/"
-    port = var.splunk_web_port
+    timeout             = 5
+    interval            = 10
+    path                = "/"
+    port                = var.splunk_web_port
   }
 
 }
 
 #Autoscaling Attachment
 resource "aws_autoscaling_attachment" "splunk_shc_target" {
-  count = var.enable_splunk_shc ? 1 : 0
-  alb_target_group_arn = aws_alb_target_group.splunk_shs.0.arn
+  count                  = var.enable_splunk_shc ? 1 : 0
+  alb_target_group_arn   = aws_alb_target_group.splunk_shs.0.arn
   autoscaling_group_name = aws_autoscaling_group.splunk_shc.0.id
 }
