@@ -66,6 +66,8 @@ if [[ "$readycount" == ${shcmembercount} ]]; then
   service splunk restart
   sudo -u splunk /data/gmnts/splunk/bin/splunk bootstrap shcluster-captain -servers_list $shcmem -auth admin:${splunkadminpass}
   service splunk restart
+  #integrate search head cluster with ixr cluster - run in only one search head
+  sudo -u splunk /data/gmnts/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri 'https://${ixrcmaster}:${splunkmgmt}' -secret ${ixrckey} -auth admin:${splunkadminpass}
 else
   echo "node "$host" not ready..exiting..."
   exit 1

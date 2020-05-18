@@ -212,6 +212,246 @@ resource "aws_security_group" "splunk_sg_single_node" {
 
 }
 
+
+#splunk indexer cluster
+#ixr master
+#ixr members
+
+
+#init logic for ixr master
+data "template_file" "ixrcmaster_init" {
+  template = file("${path.module}/ixrcmaster_config.sh")
+
+  vars = {
+    splunkixrcrepport       = var.splunkixrcrepport
+    ixrcrepf                = var.ixrcrepf
+    ixrcsf                  = var.ixrcsf
+    license_master_hostname = var.license_server_hostname
+    splunk_mgmt_port        = var.splunk_mgmt_port
+    splunkadminpass         = var.splunkadminpass
+    ixrckey                 = var.ixrckey
+    ixrclabel               = var.ixrclabel
+  }
+}
+
+data "template_cloudinit_config" "ixrcmaster_cloud_init" {
+  gzip          = false
+  base64_encode = false
+
+  # cloud-config configuration file for cloudwatch.
+  part {
+    filename     = "cloud_watch.sh"
+    content_type = "text/x-shellscript"
+    content      = data.template_file.cloud_watch.rendered
+  }
+  part {
+    filename     = "ixrcmaster.sh"
+    content_type = "text/x-shellscript"
+    content      = data.template_file.ixrcmaster_init.rendered
+  }
+}
+
+# splunk ixrc master
+# start with base splunk ami
+# add ixrc master clustering stanza
+# add as a slave to splunk license master
+resource "aws_instance" "splunk_ixrcmaster" {
+  count         = var.enable_splunk_shc ? 1 : 0
+  ami           = var.splunk-ami
+  instance_type = var.splunk_instance_type
+  subnet_id     = var.subnetAid
+  vpc_security_group_ids = [
+  aws_security_group.splunk_sg_ixrc.0.id]
+  key_name             = var.key_name
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
+  user_data            = data.template_cloudinit_config.ixrcmaster_cloud_init.rendered
+  tags = {
+    Name = "${var.project_name}-IXRCMaster"
+  }
+}
+
+
+data "template_file" "ixrc_init" {
+
+  template = file("${path.module}/ixrc_config.sh")
+
+  vars = {
+    splunkixrcrepport       = var.splunkixrcrepport
+    ixrcmaster              = aws_instance.splunk_ixrcmaster.0.private_dns
+    ixrckey                 = var.ixrckey
+    shcmembercount          = var.shcmembercount
+    license_master_hostname = var.license_server_hostname
+    splunkmgmt              = var.splunk_mgmt_port
+    splunkadminpass         = var.splunkadminpass
+  }
+}
+
+data "template_cloudinit_config" "ixrc_cloud_init" {
+  gzip          = false
+  base64_encode = false
+
+  # cloud-config configuration file for cloudwatch.
+  part {
+    filename     = "cloud_watch.sh"
+    content_type = "text/x-shellscript"
+    content      = data.template_file.cloud_watch.rendered
+  }
+  part {
+    filename     = "ixrc.sh"
+    content_type = "text/x-shellscript"
+    content      = data.template_file.ixrc_init.rendered
+  }
+}
+
+#security group for all splunk ixrc nodes
+#allows access from shc to splunk mgmt port
+#allows ssh from the bastion host subnet
+resource "aws_security_group" "splunk_sg_ixrc" {
+  count       = var.enable_splunk_shc ? 1 : 0
+  name        = "gtos_splunk_sg_ixrc"
+  description = "Used by members for splunk ixrc"
+  vpc_id      = var.vpc_id
+
+  #splunk-mgmt,rep
+  ingress {
+    from_port = var.splunk_mgmt_port
+    to_port   = var.splunk_mgmt_port
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.splunk_sg_shc.0.id,
+    aws_security_group.splunk_sg_ixrc.0.id]
+  }
+
+  ingress {
+    from_port = var.splunkixrcrepport
+    to_port   = var.splunkixrcrepport
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.splunk_sg_shc.0.id,
+    aws_security_group.splunk_sg_ixrc.0.id]
+  }
+
+  #splunk-mgmt,rep
+  egress {
+    from_port = var.splunk_mgmt_port
+    to_port   = var.splunk_mgmt_port
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.splunk_sg_shc.0.id,
+    aws_security_group.splunk_sg_ixrc.0.id]
+  }
+
+  egress {
+    from_port = var.splunkixrcrepport
+    to_port   = var.splunkixrcrepport
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.splunk_sg_shc.0.id,
+    aws_security_group.splunk_sg_ixrc.0.id]
+  }
+
+  #for aws cli
+  egress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    cidr_blocks = [
+    "0.0.0.0/0"]
+  }
+
+  #for aws cli
+  egress {
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
+    cidr_blocks = [
+    "0.0.0.0/0"]
+  }
+
+  #SSH
+  ingress {
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+    cidr_blocks = [
+    var.subnetCCIDR]
+  }
+
+  #splunk ingest port
+  ingress {
+    from_port = var.splunk_ingest_port
+    to_port   = var.splunk_ingest_port
+    protocol  = "tcp"
+    cidr_blocks = [
+    "0.0.0.0/0"]
+  }
+
+}
+
+
+resource "aws_launch_configuration" "splunk_ixrc" {
+  # Launch Configurations cannot be updated after creation with the AWS API.
+  # In order to update a Launch Configuration, Terraform will destroy the
+  # existing resource and create a replacement.
+  # We're only setting the name_prefix here,
+  # Terraform will add a random string at the end to keep it unique.
+  name_prefix   = "Splunk-IXRC-launch-conf-${var.project_name}"
+  count         = var.enable_splunk_shc ? 1 : 0
+  image_id      = var.splunk-ami
+  instance_type = var.splunk_instance_type
+  security_groups = [
+  aws_security_group.splunk_sg_ixrc.0.id]
+  key_name             = var.key_name
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
+  user_data            = data.template_cloudinit_config.ixrc_cloud_init.rendered
+  ebs_block_device {
+    device_name = "/dev/sdf"
+    volume_type = "standard"
+    volume_size = var.splunk_ixrc_volume_size
+  }
+  root_block_device {
+    volume_type = "standard"
+    volume_size = var.splunk_ixrc_root_volume_size
+  }
+}
+
+resource "aws_autoscaling_group" "splunk_ixrc" {
+  # Force a redeployment when launch configuration changes.
+  # This will reset the desired capacity if it was changed due to
+  # autoscaling events.
+  depends_on = [
+  aws_instance.splunk_ixrcmaster]
+  count                = var.enable_splunk_shc ? 1 : 0
+  name                 = "Splunk-SHC-asg-${var.project_name}"
+  min_size             = var.ixrcmembercount
+  desired_capacity     = var.ixrcmembercount
+  max_size             = var.ixrcmembercount
+  health_check_type    = "EC2"
+  launch_configuration = aws_launch_configuration.splunk_ixrc.0.name
+  vpc_zone_identifier = [
+    var.subnetAid,
+  var.subnetBid]
+
+  # Required to redeploy without an outage.
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tag {
+    key                 = "Name"
+    propagate_at_launch = true
+    value               = "Splunk-IXRC-asg-${var.project_name}"
+  }
+  tag {
+    key                 = var.asgindex
+    propagate_at_launch = true
+    value               = count.index
+  }
+}
+
+
+#########IXR Cluster logic ends#######
+
 #splunk shc
 #deployer- init,deployer
 #SHs - launch config,auto scaling group
@@ -299,6 +539,8 @@ data "template_file" "shc_init" {
     asgindex                        = var.asgindex
     shc_init_check_retry_count      = var.shc_init_check_retry_count
     shc_init_check_retry_sleep_wait = var.shc_init_check_retry_sleep_wait
+    ixrcmaster                      = aws_instance.splunk_ixrcmaster.0.private_dns
+    ixrckey                         = var.ixrclusterkey
   }
 }
 
@@ -452,6 +694,8 @@ resource "aws_autoscaling_group" "splunk_shc" {
   # Force a redeployment when launch configuration changes.
   # This will reset the desired capacity if it was changed due to
   # autoscaling events.
+  depends_on = [
+  aws_autoscaling_group.splunk_ixrc]
   count                = var.enable_splunk_shc ? 1 : 0
   name                 = "Splunk-SHC-asg-${var.project_name}"
   min_size             = var.shcmembercount
