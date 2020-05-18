@@ -7,7 +7,5 @@ sudo -u splunk /data/gmnts/splunk/bin/splunk edit licenser-localslave -master_ur
 service splunk restart
 sudo -u splunk /data/gmnts/splunk/bin/splunk clone-prep-clear-config -auth admin:${splunkadminpass}
 service splunk restart
-sudo -u splunk /data/gmnts/splunk/bin/splunk edit cluster-config -mode slave -master_uri 'https://${ixrcmaster}:${splunk_mgmt_port}' -replication_port ${splunkixrcrepport} -auth admin:${splunkadminpass}
-service splunk restart
 sudo -u splunk /data/gmnts/splunk/bin/splunk edit cluster-config -mode master -replication_factor ${ixrcrepf} -search_factor ${ixrcsf} -auth admin:${splunkadminpass}
 service splunk restart
