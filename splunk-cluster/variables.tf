@@ -11,7 +11,9 @@ variable "splunk_instance_type" {}
 variable "splunk_web_port" {}
 variable "splunk_mgmt_port" {}
 variable "vpc_id" {}
-variable "accessip" {}
+variable "accessip" {
+  type = list(string)
+}
 variable "key_name" {}
 variable "instance_name" {}
 variable "cloudwatch_retention" {
@@ -22,7 +24,7 @@ variable "splunk_shc_alb" {}
 variable "alb_listener_protocol" {}
 variable "enable_splunk_shc" {
   description = "If set to true, enable auto scaling"
-  type = bool
+  type        = bool
 }
 
 variable "splunk_shc_volume_size" {}
