@@ -498,7 +498,7 @@ resource "aws_security_group" "splunk_sg_alb" {
     from_port   = var.splunk_web_port
     to_port     = var.splunk_web_port
     protocol    = "tcp"
-    cidr_blocks = var.accessip
+    cidr_blocks = [var.accessip]
   }
 
   egress {
