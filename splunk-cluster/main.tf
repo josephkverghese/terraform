@@ -540,7 +540,7 @@ data "template_file" "shc_init" {
     shc_init_check_retry_count      = var.shc_init_check_retry_count
     shc_init_check_retry_sleep_wait = var.shc_init_check_retry_sleep_wait
     ixrcmaster                      = aws_instance.splunk_ixrcmaster.0.private_dns
-    ixrckey                         = var.ixrclusterkey
+    ixrckey                         = var.ixrckey
   }
 }
 
