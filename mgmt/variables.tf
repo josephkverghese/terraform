@@ -21,7 +21,6 @@ variable "gtos_gmnts_landing" {}
 variable "ec2_ami" {}
 variable "bastion_instance_type" {}
 variable "accessip" {
-  type = list(string)
 }
 variable "splunk_license_file_path" {}
 variable "bastion_windows_name" {}

@@ -12,7 +12,6 @@ variable "splunk_web_port" {}
 variable "splunk_mgmt_port" {}
 variable "vpc_id" {}
 variable "accessip" {
-  type = list(string)
 }
 variable "key_name" {}
 variable "instance_name" {}
