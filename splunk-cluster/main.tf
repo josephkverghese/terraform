@@ -318,8 +318,8 @@ resource "aws_security_group" "splunk_sg_ixrc" {
     to_port   = var.splunk_mgmt_port
     protocol  = "tcp"
     cidr_blocks = [
-      var.subnetAid,
-    var.subnetBid]
+      var.subnetACIDR,
+    var.subnetBCIDR]
   }
 
   ingress {
@@ -327,8 +327,8 @@ resource "aws_security_group" "splunk_sg_ixrc" {
     to_port   = var.splunkixrcrepport
     protocol  = "tcp"
     cidr_blocks = [
-      var.subnetAid,
-    var.subnetBid]
+      var.subnetACIDR,
+    var.subnetBCIDR]
 
   }
 
@@ -338,8 +338,8 @@ resource "aws_security_group" "splunk_sg_ixrc" {
     to_port   = var.splunk_mgmt_port
     protocol  = "tcp"
     cidr_blocks = [
-      var.subnetAid,
-    var.subnetBid]
+      var.subnetACIDR,
+    var.subnetBCIDR]
 
   }
 
@@ -348,8 +348,8 @@ resource "aws_security_group" "splunk_sg_ixrc" {
     to_port   = var.splunkixrcrepport
     protocol  = "tcp"
     cidr_blocks = [
-      var.subnetAid,
-    var.subnetBid]
+      var.subnetACIDR,
+    var.subnetBCIDR]
   }
 
   #for aws cli
