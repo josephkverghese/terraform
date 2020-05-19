@@ -258,11 +258,12 @@ resource "aws_security_group" "splunk_sg_license_server" {
 
 # Request a spot instance - bastion host
 resource "aws_spot_instance_request" "bastionH_WindowsUser" {
-  count         = 1
-  ami           = var.ec2_ami[count.index]
-  instance_type = var.bastion_instance_type
-  spot_price    = var.spot_price
-  spot_type     = "one-time"
+  count                = 1
+  ami                  = var.ec2_ami[count.index]
+  instance_type        = var.bastion_instance_type
+  spot_price           = var.spot_price
+  spot_type            = "one-time"
+  wait_for_fulfillment = true
   #block_duration_minutes = 60
   #valid_until="2020-03-21T13:00:00-07:00"
   key_name  = var.key_name
