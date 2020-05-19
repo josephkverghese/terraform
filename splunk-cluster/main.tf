@@ -317,7 +317,7 @@ resource "aws_security_group" "splunk_sg_ixrc" {
     from_port = var.splunk_mgmt_port
     to_port   = var.splunk_mgmt_port
     protocol  = "tcp"
-    security_groups = [
+    cidr_blocks = [
       var.subnetAid,
     var.subnetBid]
   }
@@ -326,7 +326,7 @@ resource "aws_security_group" "splunk_sg_ixrc" {
     from_port = var.splunkixrcrepport
     to_port   = var.splunkixrcrepport
     protocol  = "tcp"
-    security_groups = [
+    cidr_blocks = [
       var.subnetAid,
     var.subnetBid]
 
@@ -337,7 +337,7 @@ resource "aws_security_group" "splunk_sg_ixrc" {
     from_port = var.splunk_mgmt_port
     to_port   = var.splunk_mgmt_port
     protocol  = "tcp"
-    security_groups = [
+    cidr_blocks = [
       var.subnetAid,
     var.subnetBid]
 
@@ -347,7 +347,7 @@ resource "aws_security_group" "splunk_sg_ixrc" {
     from_port = var.splunkixrcrepport
     to_port   = var.splunkixrcrepport
     protocol  = "tcp"
-    security_groups = [
+    cidr_blocks = [
       var.subnetAid,
     var.subnetBid]
   }
