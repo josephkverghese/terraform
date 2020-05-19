@@ -283,6 +283,7 @@ data "template_file" "ixrc_init" {
     license_master_hostname = var.license_server_hostname
     splunkmgmt              = var.splunk_mgmt_port
     splunkadminpass         = var.splunkadminpass
+    splunkingest            = var.splunk_ingest_port
   }
 }
 
