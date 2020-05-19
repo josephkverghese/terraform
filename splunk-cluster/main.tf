@@ -700,7 +700,7 @@ resource "aws_autoscaling_group" "splunk_shc" {
   depends_on = [
   aws_autoscaling_group.splunk_ixrc]
   count                = var.enable_splunk_shc ? 1 : 0
-  name                 = "Splunk-SHC-asg-${var.project_name}"
+  name_prefix          = "Splunk-SHC-asg-${var.project_name}"
   min_size             = var.shcmembercount
   desired_capacity     = var.shcmembercount
   max_size             = var.shcmembercount

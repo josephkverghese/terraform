@@ -39,7 +39,7 @@ for i in $(
   aws ec2 describe-instances --region us-east-1 --instance-ids \
   $(
     aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text \
-    --query "AutoScalingInstances[?AutoScalingGroupName=='$splunkasg'].InstanceId"
+    --query "AutoScalingInstances[].[AutoScalingGroupName,InstanceId]" |grep -P "SHC.+\$splunkasg" |cut -f 2
   ) \
   --query "Reservations[].Instances[].PrivateDnsName" \
   --filters Name=instance-state-name,Values=running --output text
