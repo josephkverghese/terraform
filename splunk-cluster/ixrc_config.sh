@@ -6,7 +6,8 @@ sudo -u splunk echo -e "[replication_port://${splunkixrcrepport}]\n[clustering]\
 sudo -u splunk echo -e "[splunktcp:${splunkingest}]" >>/data/gmnts/splunk/etc/system/default/inputs.conf
 sudo -u splunk /data/gmnts/splunk/bin/splunk edit licenser-localslave -master_uri 'https://${license_master_hostname}:${splunkmgmt}' -auth admin:${splunkadminpass}
 service splunk restart
+service splunk stop
 sudo -u splunk /data/gmnts/splunk/bin/splunk clone-prep-clear-config -auth admin:${splunkadminpass}
-service splunk restart
+service splunk start
 sudo -u splunk /data/gmnts/splunk/bin/splunk edit cluster-config -mode slave -master_uri 'https://${ixrcmaster}:${splunkmgmt}' -replication_port ${splunkixrcrepport} -auth admin:${splunkadminpass}
 service splunk restart
