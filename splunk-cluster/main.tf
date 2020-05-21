@@ -425,7 +425,7 @@ resource "aws_autoscaling_group" "splunk_ixrc" {
   depends_on = [
   aws_instance.splunk_ixrcmaster]
   count                = var.enable_splunk_shc ? 1 : 0
-  name_prefix          = "Splunk-SHC-asg-${var.project_name}"
+  name_prefix          = "Splunk-IXRC-asg-${var.project_name}"
   min_size             = var.ixrcmembercount
   desired_capacity     = var.ixrcmembercount
   max_size             = var.ixrcmembercount
