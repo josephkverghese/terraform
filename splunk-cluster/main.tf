@@ -470,6 +470,8 @@ data "template_file" "deployer_init" {
     splunkadminpass         = var.splunkadminpass
     shclusterkey            = var.project_name
     shclusterlabel          = var.project_name
+    splunkingest            = var.splunk_ingest_port
+    project_name            = var.project_name
   }
 }
 
@@ -624,18 +626,39 @@ resource "aws_security_group" "splunk_sg_shc" {
   }
 
 
-  #splunk-mgmt,rep
+  #splunk-mgmt
   egress {
     from_port = var.splunk_mgmt_port
+    to_port   = var.splunk_mgmt_port
+    protocol  = "tcp"
+    security_groups = [
+    aws_security_group.splunk_sg_alb.0.id]
+    cidr_blocks = [
+      var.subnetACIDR,
+      var.subnetBCIDR
+    ]
+  }
+
+  egress {
+    from_port = var.splunkshcrepport
     to_port   = var.splunkshcrepport
     protocol  = "tcp"
     security_groups = [
     aws_security_group.splunk_sg_alb.0.id]
     cidr_blocks = [
       var.subnetACIDR,
-      var.subnetBCIDR,
-      var.subnetCCIDR,
-    var.subnetDCIDR]
+    var.subnetBCIDR]
+  }
+
+  egress {
+    from_port = var.splunk_ingest_port
+    to_port   = var.splunk_ingest_port
+    protocol  = "tcp"
+    security_groups = [
+    aws_security_group.splunk_sg_alb.0.id]
+    cidr_blocks = [
+      var.subnetACIDR,
+    var.subnetBCIDR]
   }
 
   egress {
