@@ -11,7 +11,7 @@ for i in $(
   aws ec2 describe-instances --region us-east-1 --instance-ids \
   $(
     aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text \
-    --query "AutoScalingInstances[].[AutoScalingGroupName,InstanceId]" |grep -P "SHC.+\$splunkasg" |cut -f 2
+    --query "AutoScalingInstances[].[AutoScalingGroupName,InstanceId]" |grep -P "SHC.+$splunkasg" |cut -f 2
   ) \
   --query "Reservations[].Instances[].PrivateDnsName" \
   --filters Name=instance-state-name,Values=running --output text
@@ -38,8 +38,6 @@ if [[ "$readycount" == ${shcmembercount} ]]; then
   service splunk restart
   sudo -u splunk /data/gmnts/splunk/bin/splunk bootstrap shcluster-captain -servers_list $shcmem -auth admin:${splunkadminpass}
   service splunk restart
-  #integrate search head cluster with ixr cluster - run in only one search head
-  sudo -u splunk /data/gmnts/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri 'https://${ixrcmaster}:${splunkmgmt}' -secret ${ixrckey} -auth admin:${splunkadminpass}
 else
   echo "node "$host" not ready..exiting..."
   exit 1
