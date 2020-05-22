@@ -544,6 +544,8 @@ data "template_file" "shc_init" {
     shc_init_check_retry_sleep_wait = var.shc_init_check_retry_sleep_wait
     ixrcmaster                      = aws_instance.splunk_ixrcmaster.0.private_dns
     ixrckey                         = var.ixrckey
+    splunkingest                    = var.splunk_ingest_port
+    project_name                    = var.project_name
   }
 }
 

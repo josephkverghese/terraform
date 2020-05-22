@@ -9,3 +9,15 @@ service splunk restart
 #integrate search head cluster with ixr cluster - run on each search head
 sudo -u splunk /data/gmnts/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri 'https://${ixrcmaster}:${splunkmgmt}' -secret ${ixrckey} -auth admin:${splunkadminpass}
 service splunk restart
+#add outputs.conf to forward SH logs data to indexer cluster
+ixrpeers=""
+for i in $(/data/gmnts/splunk/bin/splunk list search-server|cut -c 16-28|sed 's/$/${splunkingest}/'); do
+    ixrpeers+="$i,"
+done
+ixrpeers=$${ixrpeers:0:-1}
+echo $ixrpeers
+mkdir /data/gmnts/splunk/etc/apps/${project_name}
+echo -e "[tcpout]\ndefaultGroup = ixrs\n[tcpout:ixrs]\nserver = $ixrpeers\n[indexAndForward]\nindex = false" > /data/gmnts/splunk/etc/apps/${project_name}/default/outputs.conf
+chmod 774 -R /data/gmnts/splunk/etc/apps/${project_name}
+service splunk restart
+#add indexes.conf
