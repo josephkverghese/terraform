@@ -11,7 +11,7 @@ sudo -u splunk /data/gmnts/splunk/bin/splunk edit cluster-config -mode searchhea
 service splunk restart
 #add outputs.conf to forward SH logs data to indexer cluster
 ixrpeers=""
-for i in $(sudo -u splunk /data/gmnts/splunk/bin/splunk list search-server|cut -c 16-35|cut -d':' -f 1|sed 's/$/${splunkingest}/'); do
+for i in $(sudo -u splunk /data/gmnts/splunk/bin/splunk list search-server|cut -c 16-35|cut -d':' -f 1|sed 's/$/:${splunkingest}/'); do
     ixrpeers+="$i,"
 done
 ixrpeers=$${ixrpeers:0:-1}
