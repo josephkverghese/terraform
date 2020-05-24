@@ -848,7 +848,7 @@ resource "null_resource" "get_sh_ip" {
   depends_on = [
   aws_autoscaling_group.splunk_shc]
   provisioner "local-exec" {
-    command = "aws ec2 describe-instances --region us-east-1 --instance-ids $(aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text --query 'AutoScalingInstances[].[AutoScalingGroupName,InstanceId]'| grep -P ${aws_autoscaling_group.splunk_shc.0.name}| cut -f 2) --query 'Reservations[].Instances[].PrivateDnsName' --filters Name=instance-state-name,Values=running --output text|cut -f 1 > /opt/terraform/work/out.txt"
+    command = "aws ec2 describe-instances --region us-east-1 --instance-ids $(aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text --query 'AutoScalingInstances[].[AutoScalingGroupName,InstanceId]'| grep -P ${aws_autoscaling_group.splunk_shc.0.name}| cut -f 2) --query 'Reservations[].Instances[].PrivateIpAddress' --filters Name=instance-state-name,Values=running --output text|cut -f 1 > /opt/terraform/work/out.txt"
   }
 }
 
