@@ -844,6 +844,7 @@ resource "aws_autoscaling_attachment" "splunk_shc_target" {
 
 
 resource "null_resource" "get_sh_ip" {
+  count = var.enable_splunk_shc ? 1 : 0
   depends_on = [
   aws_autoscaling_group.splunk_shc]
   provisioner "local-exec" {
@@ -853,6 +854,7 @@ resource "null_resource" "get_sh_ip" {
 
 
 data "local_file" "sh_ip" {
+  count = var.enable_splunk_shc ? 1 : 0
   depends_on = [
   null_resource.get_sh_ip]
   filename = "/opt/terraform/work/out.txt"
@@ -861,6 +863,7 @@ data "local_file" "sh_ip" {
 
 data "template_file" "shc_config_postprocess" {
 
+  count    = var.enable_splunk_shc ? 1 : 0
   template = file("${path.module}/shc_config_postprocess.sh")
 
   vars = {
@@ -876,15 +879,13 @@ data "template_file" "shc_config_postprocess" {
 
 
 resource "null_resource" "bootstrap_splunk_shc" {
+  count = var.enable_splunk_shc ? 1 : 0
   provisioner "file" {
-    content     = data.template_file.shc_config_postprocess.rendered
+    content     = data.template_file.shc_config_postprocess.0.rendered
     destination = "/tmp/shc_config_postprocess.sh"
   }
 
   provisioner "remote-exec" {
-    //    inline = [
-    //      "mkdir ~/test",
-    //      "touch ~/test/one.sh"]
     inline = [
       "chmod +x /tmp/shc_config_postprocess.sh",
       "/tmp/shc_config_postprocess.sh",
@@ -897,7 +898,7 @@ resource "null_resource" "bootstrap_splunk_shc" {
     user                = var.ec2-user
     private_key         = var.pvt_key
     bastion_host        = var.bastion_public_ip
-    host                = data.local_file.sh_ip.content
+    host                = data.local_file.sh_ip.0.content
     timeout             = "3m"
     type                = "ssh"
   }
