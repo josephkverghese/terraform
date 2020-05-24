@@ -31,5 +31,5 @@ output "shc_init" {
 }
 
 output "shc_ip" {
-  value = data.local_file.sh_ip.content
+  value = data.local_file.sh_ip.0.content
 }
