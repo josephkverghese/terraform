@@ -34,7 +34,7 @@ variable "splunkadminpass" {}
 variable "splunkshcrepport" {}
 variable "splunkshcrepfact" {}
 variable "shclusterkey" {}
-variable "key_file" {}
+variable "pvt_key" {}
 variable "bastion_public_ip" {}
 variable "ec2-user" {
   default = "ec2-user"

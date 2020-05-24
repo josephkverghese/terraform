@@ -878,10 +878,10 @@ resource "null_resource" "bootstrap_splunk_shc" {
     content     = data.template_file.shc_config_postprocess.rendered
     destination = "/tmp/shc_config_postprocess.sh"
     connection {
-      bastion_private_key = var.key_file
+      bastion_private_key = var.pvt_key
       bastion_user        = var.ec2-user
       user                = var.ec2-user
-      private_key         = var.key_file
+      private_key         = var.pvt_key
       bastion_host        = var.bastion_public_ip
       host                = data.local_file.sh_ip.content
       timeout             = "10m"
@@ -898,10 +898,10 @@ resource "null_resource" "bootstrap_splunk_shc" {
       "/tmp/shc_config_postprocess.sh",
     ]
     connection {
-      bastion_private_key = var.key_file
+      bastion_private_key = var.pvt_key
       bastion_user        = "ec2-user"
       user                = "ec2-user"
-      private_key         = var.key_file
+      private_key         = var.pvt_key
       bastion_host        = var.bastion_public_ip
       host                = data.local_file.sh_ip.content
       timeout             = "10m"
