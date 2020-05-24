@@ -845,7 +845,7 @@ resource "aws_autoscaling_attachment" "splunk_shc_target" {
 
 resource "null_resource" "get_sh_ip" {
   provisioner "local-exec" {
-    command = "aws ec2 describe-instances --region us-east-1 --instance-ids $(aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text --query 'AutoScalingInstances[].[AutoScalingGroupName,InstanceId]'| grep -P ${aws_autoscaling_group.splunk_shc.name}| cut -f 2) --query 'Reservations[].Instances[].PrivateDnsName' --filters Name=instance-state-name,Values=running --output text|cut -f 1 > out.txt"
+    command = "aws ec2 describe-instances --region us-east-1 --instance-ids $(aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text --query 'AutoScalingInstances[].[AutoScalingGroupName,InstanceId]'| grep -P ${aws_autoscaling_group.splunk_shc.0.name}| cut -f 2) --query 'Reservations[].Instances[].PrivateDnsName' --filters Name=instance-state-name,Values=running --output text|cut -f 1 > out.txt"
   }
 
 }
@@ -861,7 +861,7 @@ resource "null_resource" "bootstrap_splunk_shc" {
     content     = data.template_file.shc_init.rendered
     destination = "/tmp/shc_config_postprocess.sh"
     connection {
-      bastion_private_key = file("${path.module}/mort1.pem")
+      bastion_private_key = var.key_file
       bastion_user        = var.ec2-user
       user                = var.ec2-user
       private_key         = var.key_file
