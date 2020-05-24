@@ -851,9 +851,10 @@ resource "null_resource" "get_sh_ip" {
 }
 
 data "local_file" "sh_ip" {
+  depends_on = [
+  null_resource.get_sh_ip]
   filename = "${path.module}/out.txt"
 }
-
 
 
 resource "null_resource" "bootstrap_splunk_shc" {
