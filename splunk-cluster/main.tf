@@ -857,9 +857,25 @@ data "local_file" "sh_ip" {
 }
 
 
+data "template_file" "shc_config_postprocess" {
+
+  template = file("${path.module}/shc_config_postprocess.sh")
+
+  vars = {
+    shcmembercount                  = 3
+    shclusterlabel                  = var.project_name
+    splunkshcasgname                = "Splunk-SHC-asg-${var.project_name}"
+    shc_init_check_retry_count      = 1
+    shc_init_check_retry_sleep_wait = 4
+    project_name                    = var.project_name
+    splunkadminpass                 = var.splunkadminpass
+  }
+}
+
+
 resource "null_resource" "bootstrap_splunk_shc" {
   provisioner "file" {
-    content     = data.template_file.shc_init.rendered
+    content     = data.template_file.shc_config_postprocess.rendered
     destination = "/tmp/shc_config_postprocess.sh"
     connection {
       bastion_private_key = var.key_file
