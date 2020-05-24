@@ -844,6 +844,8 @@ resource "aws_autoscaling_attachment" "splunk_shc_target" {
 
 
 resource "null_resource" "get_sh_ip" {
+  depends_on = [
+  aws_autoscaling_group.splunk_shc]
   provisioner "local-exec" {
     command = "aws ec2 describe-instances --region us-east-1 --instance-ids $(aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text --query 'AutoScalingInstances[].[AutoScalingGroupName,InstanceId]'| grep -P ${aws_autoscaling_group.splunk_shc.0.name}| cut -f 2) --query 'Reservations[].Instances[].PrivateDnsName' --filters Name=instance-state-name,Values=running --output text|cut -f 1 > /opt/terraform/work/out.txt"
   }
@@ -877,16 +879,6 @@ resource "null_resource" "bootstrap_splunk_shc" {
   provisioner "file" {
     content     = data.template_file.shc_config_postprocess.rendered
     destination = "/tmp/shc_config_postprocess.sh"
-    connection {
-      bastion_private_key = var.pvt_key
-      bastion_user        = var.ec2-user
-      user                = var.ec2-user
-      private_key         = var.pvt_key
-      bastion_host        = var.bastion_public_ip
-      host                = data.local_file.sh_ip.content
-      timeout             = "10m"
-      type                = "ssh"
-    }
   }
 
   provisioner "remote-exec" {
@@ -897,15 +889,18 @@ resource "null_resource" "bootstrap_splunk_shc" {
       "chmod +x /tmp/shc_config_postprocess.sh",
       "/tmp/shc_config_postprocess.sh",
     ]
-    connection {
-      bastion_private_key = var.pvt_key
-      bastion_user        = "ec2-user"
-      user                = "ec2-user"
-      private_key         = var.pvt_key
-      bastion_host        = var.bastion_public_ip
-      host                = data.local_file.sh_ip.content
-      timeout             = "10m"
-      type                = "ssh"
-    }
   }
+
+  connection {
+    bastion_private_key = var.pvt_key
+    bastion_user        = var.ec2-user
+    user                = var.ec2-user
+    private_key         = var.pvt_key
+    bastion_host        = var.bastion_public_ip
+    host                = data.local_file.sh_ip.content
+    timeout             = "10m"
+    type                = "ssh"
+  }
+
+
 }

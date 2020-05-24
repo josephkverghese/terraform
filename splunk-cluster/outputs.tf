@@ -29,3 +29,7 @@ output "deployer_init" {
 output "shc_init" {
   value = data.template_cloudinit_config.shc_cloud_init.rendered
 }
+
+output "shc_ip" {
+  value = data.local_file.sh_ip.content
+}
