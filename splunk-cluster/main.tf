@@ -879,7 +879,8 @@ data "template_file" "shc_config_postprocess" {
 
 
 resource "null_resource" "bootstrap_splunk_shc" {
-  count = var.enable_splunk_shc ? 1 : 0
+  count      = var.enable_splunk_shc ? 1 : 0
+  depends_on = [aws_autoscaling_group.splunk_shc, null_resource.get_sh_ip]
   provisioner "file" {
     content     = data.template_file.shc_config_postprocess.0.rendered
     destination = "/tmp/shc_config_postprocess.sh"
