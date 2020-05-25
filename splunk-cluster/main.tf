@@ -868,11 +868,11 @@ data "template_file" "shc_config_postprocess" {
   template = file("${path.module}/shc_config_postprocess.sh")
 
   vars = {
-    shcmembercount                  = 3
+    shcmembercount                  = var.shcmembercount
     shclusterlabel                  = var.project_name
     splunkshcasgname                = aws_autoscaling_group.splunk_shc.0.name
-    shc_init_check_retry_count      = 1
-    shc_init_check_retry_sleep_wait = 4
+    shc_init_check_retry_count      = var.shc_init_check_retry_count
+    shc_init_check_retry_sleep_wait = var.shc_init_check_retry_sleep_wait
     project_name                    = var.project_name
     splunkadminpass                 = var.splunkadminpass
   }
