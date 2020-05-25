@@ -853,7 +853,7 @@ resource "null_resource" "get_sh_ip" {
   }
   provisioner "local-exec" {
     command = "rm -rf /opt/terraform/work/out.txt"
-    when    = "destroy"
+    when    = destroy
   }
 }
 
