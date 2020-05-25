@@ -6,8 +6,16 @@ sudo -u splunk echo -e  "[shclustering]\npass4SymmKey = ${shclusterkey}\nshclust
 service splunk restart
 #add outputs.conf to forward SH logs data to indexer cluster
 ixrpeers=""
-for i in $(sudo -u splunk /data/gmnts/splunk/bin/splunk list search-server|cut -c 16-35|cut -d':' -f 1|sed 's/$/:${splunkingest}/'); do
-    ixrpeers+="$i,"
+for i in $(
+  aws ec2 describe-instances --region us-east-1 --instance-ids \
+    $(
+      aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text \
+        --query "AutoScalingInstances[].[AutoScalingGroupName,InstanceId]" | grep -P "${splunkixrasgname}" | cut -f 2
+    ) \
+    --query "Reservations[].Instances[].PrivateDnsName" \
+    --filters Name=instance-state-name,Values=running --output text
+); do
+  ixrpeers+="https://$i:${splunkingest},"
 done
 ixrpeers=$${ixrpeers:0:-1}
 echo $ixrpeers

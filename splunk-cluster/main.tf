@@ -472,6 +472,7 @@ data "template_file" "deployer_init" {
     shclusterlabel          = var.project_name
     splunkingest            = var.splunk_ingest_port
     project_name            = var.project_name
+    splunkixrasgname        = aws_autoscaling_group.splunk_ixrc.0.name
   }
 }
 
@@ -869,7 +870,7 @@ data "template_file" "shc_config_postprocess" {
   vars = {
     shcmembercount                  = 3
     shclusterlabel                  = var.project_name
-    splunkshcasgname                = "Splunk-SHC-asg-${var.project_name}"
+    splunkshcasgname                = aws_autoscaling_group.splunk_shc.0.name
     shc_init_check_retry_count      = 1
     shc_init_check_retry_sleep_wait = 4
     project_name                    = var.project_name
@@ -879,8 +880,10 @@ data "template_file" "shc_config_postprocess" {
 
 
 resource "null_resource" "bootstrap_splunk_shc" {
-  count      = var.enable_splunk_shc ? 1 : 0
-  depends_on = [aws_autoscaling_group.splunk_shc, null_resource.get_sh_ip]
+  count = var.enable_splunk_shc ? 1 : 0
+  depends_on = [
+    aws_autoscaling_group.splunk_shc,
+  null_resource.get_sh_ip]
   provisioner "file" {
     content     = data.template_file.shc_config_postprocess.0.rendered
     destination = "/tmp/shc_config_postprocess.sh"
