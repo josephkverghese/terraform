@@ -13,10 +13,10 @@ for i in $(
       aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text \
         --query "AutoScalingInstances[].[AutoScalingGroupName,InstanceId]" | grep -P "${splunkixrasgname}" | cut -f 2
     ) \
-    --query "Reservations[].Instances[].PrivateDnsName" \
+    --query "Reservations[].Instances[].PrivateIpAddress" \
     --filters Name=instance-state-name,Values=running --output text
 ); do
-  ixrpeers+="https://$i:${splunkingest},"
+  ixrpeers+="$i:${splunkingest},"
 done
 ixrpeers=$${ixrpeers:0:-1}
 echo $ixrpeers
