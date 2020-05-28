@@ -1,6 +1,14 @@
+locals {
+  base_tags = {
+    project = var.project_name
+    env     = var.environment
+  }
+}
+
 resource "aws_kms_key" "s3key" {
   description             = "This key is used to encrypt s3 license bucket"
   deletion_window_in_days = 10
+  tags                    = merge(local.base_tags, map("Name", "s3 bucket splunk license kms key"))
 }
 
 resource "aws_s3_bucket" "s3_bucket_splunk_license" {
@@ -15,9 +23,7 @@ resource "aws_s3_bucket" "s3_bucket_splunk_license" {
   //      }
   //    }
   //  }
-  tags = {
-    Name = var.splunk_license_bucket
-  }
+  tags = merge(local.base_tags, map("Name", var.splunk_license_bucket))
 }
 
 #copy from landing bucket to license bukcet
@@ -69,6 +75,7 @@ resource "aws_iam_role" "splunk_ec2_role" {
   # who can assume this role
   assume_role_policy    = data.aws_iam_policy_document.splunk-instance-assume-role-policy.json
   force_detach_policies = true
+  tags                  = merge(local.base_tags, map("Name", "splunk_ec2_role"))
 }
 
 #attach an additional policy to the splunk ec2 iam role
@@ -100,10 +107,7 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 resource "aws_vpc_endpoint" "s3" {
   vpc_id       = var.vpc_id
   service_name = var.endpoint_service_name
-  tags = {
-    project     = var.project_name
-    Environment = "test"
-  }
+  tags         = merge(local.base_tags, map("Name", "s3_vpc_endpoint"))
 }
 
 resource "aws_vpc_endpoint_route_table_association" "splunk_pvt_s3" {
@@ -135,31 +139,7 @@ resource "aws_instance" "splunk_license_server" {
   key_name             = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
   user_data            = data.template_file.splunk_l_server_init.rendered
-  //  provisioner "file" {
-  //    content = data.aws_s3_bucket_object.splunk_license_file.body
-  //    destination = var.splunk_license_file_path
-  //  }
-  //
-  //  provisioner "remote-exec" {
-  //    inline = [
-  //      "sudo -u splunk aws s3 cp s3://${var.splunk_license_bucket}/${var.splunk_license_file} /data/gmnts/splunk/etc/"
-  //      // "aws s3  https://gtos-gmnts-splunk-license.s3.us-east-1.amazonaws.com/Splunk.License /data/gmnts/splunk/etc/"
-  //    ]
-  //
-  //    connection {
-  //      bastion_private_key = var.bastion_key
-  //      bastion_user = var.bastion_user
-  //      user = var.ec2_user
-  //      private_key = var.splunk_license_master_key
-  //      bastion_host = aws_spot_instance_request.bastionH_WindowsUser.0.public_ip
-  //      host = aws_instance.splunk_license_server.private_ip
-  //      timeout = "10m"
-  //      type = "ssh"
-  //    }
-  //}
-  tags = {
-    Name = "${var.project_name}-License Server"
-  }
+  tags                 = merge(local.base_tags, map("Name", "${var.project_name}-License Server"))
 }
 
 #splunk security group for license server
@@ -254,6 +234,7 @@ resource "aws_security_group" "splunk_sg_license_server" {
 
   }
 
+  tags = merge(local.base_tags, map("Name", "${var.project_name}-License Server-SG"))
 }
 
 # Request a spot instance - bastion host
@@ -272,9 +253,7 @@ resource "aws_spot_instance_request" "bastionH_WindowsUser" {
     [
       aws_security_group.bastionH_sg.id,
   aws_security_group.WinUser_sg.id][count.index]]
-  tags = {
-    Name = "${var.bastion_windows_name[count.index]}"
-  }
+  tags = merge(local.base_tags, map("Name", "var.bastion_windows_name[count.index]"))
 }
 
 
@@ -301,6 +280,8 @@ resource "aws_security_group" "bastionH_sg" {
       var.subnetCCIDR,
     var.subnetDCIDR]
   }
+
+  tags = merge(local.base_tags, map("Name", "bastion-SG"))
 }
 
 resource "aws_security_group" "WinUser_sg" {
@@ -326,6 +307,8 @@ resource "aws_security_group" "WinUser_sg" {
       var.subnetCCIDR,
     var.subnetDCIDR]
   }
+
+  tags = merge(local.base_tags, map("Name", "WinUser-SG"))
 }
 
 #add a nat instance to the module
@@ -337,15 +320,14 @@ resource aws_instance "nat_instance" {
   subnet_id         = var.subnetAid
   vpc_security_group_ids = [
   aws_security_group.nat-sg.0.id]
-  tags = {
-    Name = "NAT-server"
-  }
+  tags = merge(local.base_tags, map("Name", "NAT-server"))
 }
 
 resource "aws_eip" "nat_eip" {
   count    = var.enable_nat_instance ? 1 : 0
   instance = aws_instance.nat_instance.0.id
   vpc      = true
+  tags     = merge(local.base_tags, map("Name", "NAT-EIP"))
 }
 
 resource "aws_security_group" "nat-sg" {
@@ -388,6 +370,7 @@ resource "aws_security_group" "nat-sg" {
     "0.0.0.0/0"]
   }
 
+  tags = merge(local.base_tags, map("Name", "NAT-SG"))
 }
 
 #add a new route to the private subnet route table

@@ -35,3 +35,4 @@ variable "splunk_admin_pass" {}
 variable "enable_nat_instance" {
   type = bool
 }
+variable "environment" {}
