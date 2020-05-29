@@ -36,3 +36,4 @@ variable "enable_nat_instance" {
   type = bool
 }
 variable "environment" {}
+variable "app" {}

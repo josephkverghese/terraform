@@ -57,3 +57,5 @@ variable "ixrcrepf" {}
 variable "ixrcsf" {}
 variable "ixrclabel" {}
 variable "splunk_ingest_port" {}
+variable "environment" {}
+variable "app" {}

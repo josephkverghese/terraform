@@ -1,7 +1,16 @@
+locals {
+  base_tags = {
+    project = var.project_name
+    env     = var.environment
+    app     = var.app
+  }
+}
+
 #create a cloudwatch log group for this project
 resource "aws_cloudwatch_log_group" "log_group" {
   name              = var.cloudwatch_loggroup_name
   retention_in_days = var.cloudwatch_retention
+  tags              = merge(local.base_tags, map("Name", "cloudwatch-log-group"))
 }
 
 //resource "aws_iam_role" "log_group_role" {
@@ -73,6 +82,7 @@ resource "aws_iam_role" "splunk_ec2_role" {
     ]
 }
 EOF
+  tags               = merge(local.base_tags, map("Name", "splunk-ec2-role"))
 }
 
 # ec2 instances should be able to access other ec2 instances, cloudwatch, sns topic
@@ -131,9 +141,7 @@ resource "aws_instance" "splunk" {
   key_name             = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
   user_data            = data.template_file.cloud_watch.rendered
-  tags = {
-    Name = var.instance_name
-  }
+  tags                 = merge(local.base_tags, map("Name", "splunk-single-node"))
 }
 
 #public single node splunk instance security group
@@ -156,7 +164,6 @@ resource "aws_security_group" "splunk_sg_single_node" {
       var.subnetCCIDR,
     var.subnetDCIDR]
   }
-
 
   #splunk-mgmt,rep
   ingress {
@@ -195,7 +202,6 @@ resource "aws_security_group" "splunk_sg_single_node" {
     var.subnetDCIDR]
   }
 
-
   #splunk-mgmt,rep
   egress {
     from_port = var.splunk_mgmt_port
@@ -210,6 +216,7 @@ resource "aws_security_group" "splunk_sg_single_node" {
     var.subnetDCIDR]
   }
 
+  tags = merge(local.base_tags, map("Name", "splunk-single-node-SG"))
 }
 
 
@@ -265,9 +272,7 @@ resource "aws_instance" "splunk_ixrcmaster" {
   key_name             = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
   user_data            = data.template_cloudinit_config.ixrcmaster_cloud_init.rendered
-  tags = {
-    Name = "${var.project_name}-IXRCMaster"
-  }
+  tags                 = merge(local.base_tags, map("Name", "IXRCMaster"))
 }
 
 
@@ -322,7 +327,6 @@ resource "aws_security_group" "splunk_sg_ixrc" {
       var.subnetACIDR,
     var.subnetBCIDR]
   }
-
   ingress {
     from_port = var.splunkixrcrepport
     to_port   = var.splunkixrcrepport
@@ -332,7 +336,6 @@ resource "aws_security_group" "splunk_sg_ixrc" {
     var.subnetBCIDR]
 
   }
-
   #splunk-mgmt,rep
   egress {
     from_port = var.splunk_mgmt_port
@@ -343,7 +346,6 @@ resource "aws_security_group" "splunk_sg_ixrc" {
     var.subnetBCIDR]
 
   }
-
   egress {
     from_port = var.splunkixrcrepport
     to_port   = var.splunkixrcrepport
@@ -352,7 +354,6 @@ resource "aws_security_group" "splunk_sg_ixrc" {
       var.subnetACIDR,
     var.subnetBCIDR]
   }
-
   #for aws cli
   egress {
     from_port = 443
@@ -361,7 +362,6 @@ resource "aws_security_group" "splunk_sg_ixrc" {
     cidr_blocks = [
     "0.0.0.0/0"]
   }
-
   #for aws cli
   egress {
     from_port = 80
@@ -370,7 +370,6 @@ resource "aws_security_group" "splunk_sg_ixrc" {
     cidr_blocks = [
     "0.0.0.0/0"]
   }
-
   #SSH
   ingress {
     from_port = 22
@@ -379,7 +378,6 @@ resource "aws_security_group" "splunk_sg_ixrc" {
     cidr_blocks = [
     var.subnetCCIDR]
   }
-
   #splunk ingest port
   ingress {
     from_port = var.splunk_ingest_port
@@ -388,7 +386,7 @@ resource "aws_security_group" "splunk_sg_ixrc" {
     cidr_blocks = [
     "0.0.0.0/0"]
   }
-
+  tags = merge(local.base_tags, map("Name", "splunk-IXRC-SG"))
 }
 
 
@@ -439,7 +437,7 @@ resource "aws_autoscaling_group" "splunk_ixrc" {
   lifecycle {
     create_before_destroy = true
   }
-
+  //
   tag {
     key                 = "Name"
     propagate_at_launch = true
@@ -450,6 +448,15 @@ resource "aws_autoscaling_group" "splunk_ixrc" {
     propagate_at_launch = true
     value               = count.index
   }
+
+  tag {
+    key                 = "project"
+    propagate_at_launch = false
+    value               = var.project_name
+  }
+
+  //tags = merge(local.base_tags, map("Name", "IXRC-ASG"))
+
 }
 
 
@@ -507,9 +514,8 @@ resource "aws_instance" "splunk_deployer" {
   key_name             = var.key_name
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
   user_data            = data.template_cloudinit_config.deployer_cloud_init.rendered
-  tags = {
-    Name = "${var.project_name}-Deployer"
-  }
+  tags                 = merge(local.base_tags, map("Name", "splunk-Deployer"))
+
 }
 
 #SHC
@@ -691,6 +697,8 @@ resource "aws_security_group" "splunk_sg_shc" {
     var.subnetCCIDR]
   }
 
+  tags = merge(local.base_tags, map("Name", "splunk-SHC-SG"))
+
 }
 
 resource "aws_launch_configuration" "splunk_sh" {
@@ -751,6 +759,11 @@ resource "aws_autoscaling_group" "splunk_shc" {
     propagate_at_launch = true
     value               = count.index
   }
+  tag {
+    key                 = "project"
+    propagate_at_launch = false
+    value               = var.project_name
+  }
 }
 //
 //  tags = [
@@ -782,6 +795,8 @@ resource "aws_security_group" "splunk_sg_alb" {
       var.subnetACIDR,
     var.subnetBCIDR]
   }
+
+  tags = merge(local.base_tags, map("Name", "splunk-ALB-SG"))
 }
 
 resource "aws_alb" "splunk_shc_alb" {
@@ -796,9 +811,8 @@ resource "aws_alb" "splunk_shc_alb" {
   var.subnetDid]
   //  enable_deletion_protection = true
 
-  tags = {
-    Environment = "production"
-  }
+  tags = merge(local.base_tags, map("Name", "splunk-ALB"))
+
 }
 
 resource "aws_alb_listener" "alb_listener" {
@@ -833,7 +847,7 @@ resource "aws_alb_target_group" "splunk_shs" {
     path                = "/"
     port                = var.splunk_web_port
   }
-
+  tags = merge(local.base_tags, map("Name", "splunk-SHC-ALB-TG"))
 }
 
 #Autoscaling Attachment
