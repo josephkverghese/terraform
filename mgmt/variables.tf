@@ -37,3 +37,4 @@ variable "enable_nat_instance" {
 }
 variable "environment" {}
 variable "app" {}
+variable "splunk_app_deploy_bucket" {}

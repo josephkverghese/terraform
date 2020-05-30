@@ -6,6 +6,22 @@ locals {
   }
 }
 
+resource "aws_s3_bucket" "splunkappdeploy" {
+  bucket        = var.splunk_app_deploy_bucket
+  force_destroy = true
+  acl           = "private"
+  //  server_side_encryption_configuration {
+  //    rule {
+  //      apply_server_side_encryption_by_default {
+  //        kms_master_key_id = aws_kms_key.s3key.arn
+  //        sse_algorithm = "aws:kms"
+  //      }
+  //    }
+  //  }
+  tags = merge(local.base_tags, map("Name", var.splunk_app_deploy_bucket))
+}
+
+
 resource "aws_kms_key" "s3key" {
   description             = "This key is used to encrypt s3 license bucket"
   deletion_window_in_days = 10
