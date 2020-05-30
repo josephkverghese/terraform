@@ -79,8 +79,18 @@ resource "aws_iam_role" "splunk_ec2_role" {
             },
             "Effect": "Allow",
             "Sid": ""
-        },
+        }
+    ]
+}
+EOF
+  tags               = merge(local.base_tags, map("Name", "splunk-ec2-role"))
+}
+
+resource "aws_iam_policy" "ssm_s3_endpoint" {
+  policy = <<EOF
 {
+  "Version": "2012-10-17",
+"Statement":[{
             "Effect": "Allow",
             "Action": "s3:GetObject",
             "Resource": [
@@ -91,13 +101,10 @@ resource "aws_iam_role" "splunk_ec2_role" {
                 "arn:aws:s3:::${var.region}-birdwatcher-prod/*",
                 "arn:aws:s3:::patch-baseline-snapshot-${var.region}/*"
             ]
-        }
-    ]
+        }]
 }
 EOF
-  tags               = merge(local.base_tags, map("Name", "splunk-ec2-role"))
 }
-
 # ec2 instances should be able to access other ec2 instances, cloudwatch, sns topic
 //resource "aws_iam_policy" "splunk_ec2_policy" {
 //  policy = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
@@ -131,6 +138,14 @@ resource "aws_iam_policy_attachment" "splunk_ec2_attach2" {
 resource "aws_iam_policy_attachment" "splunk_ec2_attach3" {
   name       = "splunk_ec2_attach"
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  roles = [
+  aws_iam_role.splunk_ec2_role.id]
+}
+
+#attach the policy to the iam role
+resource "aws_iam_policy_attachment" "splunk_ec2_attach4" {
+  name       = "splunk_ec2_attach"
+  policy_arn = aws_iam_policy.ssm_s3_endpoint.arn
   roles = [
   aws_iam_role.splunk_ec2_role.id]
 }
