@@ -59,3 +59,4 @@ variable "ixrclabel" {}
 variable "splunk_ingest_port" {}
 variable "environment" {}
 variable "app" {}
+variable "region" {}
