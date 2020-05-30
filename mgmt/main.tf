@@ -21,6 +21,94 @@ resource "aws_s3_bucket" "splunkappdeploy" {
   tags = merge(local.base_tags, map("Name", var.splunk_app_deploy_bucket))
 }
 
+#allow splunk app deploy bucket to invoke the lambda
+resource "aws_lambda_permission" "allow_bucket" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.splunk_app_deploy.arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.splunkappdeploy.arn
+}
+
+#invoke lambda for any new object creation
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.splunkappdeploy.id
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.splunk_app_deploy.arn
+    events = [
+    "s3:ObjectCreated:*"]
+  }
+
+  depends_on = [
+  aws_lambda_permission.allow_bucket]
+}
+
+
+resource "aws_lambda_function" "splunk_app_deploy" {
+  function_name = "splunkappdeployer"
+
+  # The bucket name as created earlier with "aws s3api create-bucket"
+  s3_bucket = var.gtos_gmnts_landing
+  s3_key    = "splunk/apps/splunkappdeployer.zip"
+
+  # "main" is the filename within the zip file (main.js) and "handler"
+  # is the name of the property under which the handler function was
+  # exported in that file.
+  handler = "splunkappdeploy/app.lambda_handler"
+  runtime = "python3.7"
+  timeout = 60
+
+  role = aws_iam_role.lambda_exec.arn
+}
+
+# IAM role which dictates what other AWS services the Lambda function
+# may access.
+#read the zip file from the lambda repo bucket
+#read the s3 bucket that has the splunk app to be deployed
+#write access to cloudwatch
+resource "aws_iam_role" "lambda_exec" {
+  name = "serverless_example_lambda"
+
+  assume_role_policy = <<EOF
+ {
+   "Version": "2012-10-17",
+   "Statement": [
+     {
+       "Action": "sts:AssumeRole",
+       "Principal": {
+         "Service": "lambda.amazonaws.com"
+       },
+       "Effect": "Allow",
+       "Sid": ""
+     },
+      {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:DescribeLogGroups",
+                "logs:DescribeLogStreams",
+                "logs:PutLogEvents",
+                "logs:GetLogEvents",
+                "logs:FilterLogEvents"
+            ],
+            "Resource": "*"
+        }
+   ]
+ }
+ EOF
+
+}
+
+#attach the policy to the iam role
+resource "aws_iam_policy_attachment" "splunk_ec2_attach" {
+  name       = "lambda_attach"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+  roles = [
+  aws_iam_role.lambda_exec.id]
+}
+
 
 resource "aws_kms_key" "s3key" {
   description             = "This key is used to encrypt s3 license bucket"
