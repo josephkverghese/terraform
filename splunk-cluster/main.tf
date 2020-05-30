@@ -921,7 +921,7 @@ resource "null_resource" "bootstrap_splunk_shc" {
     private_key         = var.pvt_key
     bastion_host        = var.bastion_public_ip
     host                = data.local_file.sh_ip.0.content
-    timeout             = "3m"
+    timeout             = "20m"
     type                = "ssh"
   }
 
