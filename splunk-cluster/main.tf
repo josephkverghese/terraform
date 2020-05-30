@@ -752,7 +752,7 @@ resource "aws_autoscaling_group" "splunk_shc" {
   tag {
     key                 = "Name"
     propagate_at_launch = true
-    value               = "Splunk-SHC-asg-${var.project_name}"
+    value               = "Splunk-SHC-ASG"
   }
   tag {
     key                 = var.asgindex
@@ -761,7 +761,7 @@ resource "aws_autoscaling_group" "splunk_shc" {
   }
   tag {
     key                 = "project"
-    propagate_at_launch = false
+    propagate_at_launch = true
     value               = var.project_name
   }
 }
