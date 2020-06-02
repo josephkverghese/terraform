@@ -71,7 +71,7 @@ resource "aws_iam_role" "lambda_exec" {
   name                  = "serverless_example_lambda"
   path                  = "/"
   force_detach_policies = true
-  assume_role_policy    = data.aws_iam_policy_document.splunk-lambda-assume-role-policy
+  assume_role_policy    = data.aws_iam_policy_document.splunk-lambda-assume-role-policy.json
   tags                  = merge(local.base_tags, map("Name", "lambda_exec"))
 }
 
