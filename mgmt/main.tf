@@ -58,8 +58,7 @@ resource "aws_lambda_function" "splunk_app_deploy" {
   handler = "app.lambda_handler"
   runtime = "python3.7"
   timeout = 60
-
-  role = aws_iam_role.lambda_exec.arn
+  role    = aws_iam_role.lambda_exec.arn
 }
 
 # IAM role which dictates what other AWS services the Lambda function
@@ -76,9 +75,26 @@ resource "aws_iam_role" "lambda_exec" {
 }
 
 #attach the policy to the iam role
-resource "aws_iam_policy_attachment" "splunk_ec2_attach" {
+resource "aws_iam_policy_attachment" "lambda_auto_deploy_s3" {
   name       = "lambda_attach"
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+  roles = [
+  aws_iam_role.lambda_exec.id]
+}
+
+#attach the policy to the iam role
+resource "aws_iam_policy_attachment" "lambda_auto_deploy_ec2" {
+  name       = "lambda_attach"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
+  roles = [
+  aws_iam_role.lambda_exec.id]
+}
+
+
+#attach the policy to the iam role
+resource "aws_iam_policy_attachment" "lambda_auto_deploy_ssm" {
+  name       = "lambda_attach"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   roles = [
   aws_iam_role.lambda_exec.id]
 }
