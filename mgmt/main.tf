@@ -50,12 +50,12 @@ resource "aws_lambda_function" "splunk_app_deploy" {
 
   # The bucket name as created earlier with "aws s3api create-bucket"
   s3_bucket = var.gtos_gmnts_landing
-  s3_key    = "splunk/apps/splunkappdeployer.zip"
+  s3_key    = "splunk/apps/splunkappdeploy.zip"
 
   # "main" is the filename within the zip file (main.js) and "handler"
   # is the name of the property under which the handler function was
   # exported in that file.
-  handler = "splunkappdeploy/app.lambda_handler"
+  handler = "app.lambda_handler"
   runtime = "python3.7"
   timeout = 60
 
