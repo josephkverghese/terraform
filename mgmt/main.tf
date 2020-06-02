@@ -99,6 +99,13 @@ resource "aws_iam_policy_attachment" "lambda_auto_deploy_ssm" {
   aws_iam_role.lambda_exec.id]
 }
 
+#attach the policy to the iam role
+resource "aws_iam_policy_attachment" "lambda_auto_deploy_sns_publish" {
+  name       = "lambda_attach"
+  policy_arn = "arn:aws:iam::894534430688:policy/service-role/AWSLambdaSNSPublishPolicyExecutionRole-f68893e9-dc4f-41e8-ace7-214301147612"
+  roles = [
+  aws_iam_role.lambda_exec.id]
+}
 
 resource "aws_kms_key" "s3key" {
   description             = "This key is used to encrypt s3 license bucket"
