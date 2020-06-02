@@ -81,20 +81,7 @@ resource "aws_iam_role" "lambda_exec" {
        },
        "Effect": "Allow",
        "Sid": ""
-     },
-      {
-            "Effect": "Allow",
-            "Action": [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:DescribeLogGroups",
-                "logs:DescribeLogStreams",
-                "logs:PutLogEvents",
-                "logs:GetLogEvents",
-                "logs:FilterLogEvents"
-            ],
-            "Resource": "*"
-        }
+     }
    ]
  }
  EOF
